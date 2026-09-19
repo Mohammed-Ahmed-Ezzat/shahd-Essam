@@ -28,7 +28,12 @@ import {
   ArrowRight,
   Info,
   Check,
-  Share2
+  Share2,
+  Phone,
+  Heart,
+  Bookmark,
+  FileText,
+  Send
 } from 'lucide-react';
 import { SCRIPT_DATABASE } from '../data/contentData';
 
@@ -60,9 +65,9 @@ function detectScriptType(text) {
     return 'reel';
   }
 
-  // Multi-line Post Ideas or Offer Bullets Check
-  const lines = t.split('\n').map(l => l.trim()).filter(Boolean);
-  if (lines.length >= 2) {
+  // Explicit Numbered Ideas Check (e.g. 1. "..." or 1 - or فكرة 1:)
+  const numberedPattern = /(^|\n)\s*\d+[\.\-\)]\s*["\u0600-\u06FFa-zA-Z]/;
+  if (numberedPattern.test(t)) {
     return 'post_ideas';
   }
 
@@ -481,8 +486,8 @@ function PodcastEpisodeViewer({ scriptText }) {
                 </div>
               )}
 
-              {/* Responsive 2-Column Grid of Questions */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+              {/* Responsive Elegant List of Discussion Pillars */}
+              <div className="space-y-2.5">
                 {questions.map((q, qIdx) => (
                   <div
                     key={qIdx}
@@ -490,10 +495,10 @@ function PodcastEpisodeViewer({ scriptText }) {
                       background: 'rgba(255, 255, 255, 0.03)',
                       border: '1px solid rgba(255, 255, 255, 0.07)',
                       borderRadius: '10px',
-                      padding: '12px 14px',
+                      padding: '12px 16px',
                       display: 'flex',
                       alignItems: 'flex-start',
-                      gap: '10px',
+                      gap: '12px',
                       transition: 'all 0.2s ease',
                     }}
                     className="hover:border-purple-500/40 hover:bg-white/5"
@@ -502,15 +507,16 @@ function PodcastEpisodeViewer({ scriptText }) {
                       background: 'rgba(168, 85, 247, 0.18)',
                       color: '#D8B4FE',
                       fontWeight: 800,
-                      fontSize: '0.75rem',
-                      padding: '2px 7px',
+                      fontSize: '0.74rem',
+                      padding: '3px 9px',
                       borderRadius: '6px',
-                      shrink: 0,
-                      marginTop: '2px'
+                      flexShrink: 0,
+                      marginTop: '2px',
+                      whiteSpace: 'nowrap'
                     }}>
-                      {String(qIdx + 1).padStart(2, '0')}
+                      محور {qIdx + 1}
                     </span>
-                    <p style={{ margin: 0, color: '#F1F5F9', fontSize: '0.92rem', fontWeight: 600, lineHeight: 1.65, flex: 1 }}>
+                    <p style={{ margin: 0, color: '#F1F5F9', fontSize: '0.94rem', fontWeight: 600, lineHeight: 1.7, flex: 1 }}>
                       {q}
                     </p>
                   </div>
@@ -896,103 +902,658 @@ function ReelScriptViewer({ scriptText }) {
 }
 
 /* =========================================================================
-   C. MULTI-LINE POST IDEAS / CAPTIONS VIEWER (e.g. rehab_posts, maysa_month9)
+   C. MULTI-LINE POST IDEAS / BRAINSTORM VIEWER
    ========================================================================= */
+function parseStructuredPostContent(scriptText) {
+  if (!scriptText) return { type: 'empty', intro: '', items: [] };
+  const rawLines = scriptText.split('\n').map(l => l.trim()).filter(Boolean);
+
+  // Check for genuine numbered ideas (e.g. 1. "..." or 1 - or 1))
+  const numberedPattern = /^(\d+)[\.\-\)]\s*(.*)/;
+  const hasNumberedItems = rawLines.some(l => numberedPattern.test(l));
+
+  if (hasNumberedItems) {
+    const intro = [];
+    const items = [];
+    let currentItem = null;
+
+    for (const line of rawLines) {
+      const match = line.match(numberedPattern);
+      if (match) {
+        if (currentItem) items.push(currentItem);
+        currentItem = {
+          number: match[1],
+          title: match[2].trim(),
+          details: []
+        };
+      } else if (currentItem) {
+        currentItem.details.push(line);
+      } else {
+        intro.push(line);
+      }
+    }
+    if (currentItem) items.push(currentItem);
+
+    return {
+      type: 'numbered_ideas',
+      intro: intro.join('\n'),
+      items
+    };
+  }
+
+  return {
+    type: 'narrative',
+    paragraphs: scriptText.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean)
+  };
+}
+
 function PostIdeasViewer({ scriptText }) {
-  const lines = scriptText.split('\n').map(l => l.trim()).filter(Boolean);
+  if (!scriptText) return null;
+  const parsed = parseStructuredPostContent(scriptText);
 
-  return (
-    <div className="space-y-3" dir="rtl" style={{ textAlign: 'right' }}>
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '8px 12px',
-        background: 'rgba(255, 255, 255, 0.02)',
-        borderRadius: '8px',
-        border: '1px solid rgba(255, 255, 255, 0.06)',
-        marginBottom: '6px'
-      }}>
-        <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#94A3B8', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Sparkles className="w-3.5 h-3.5 text-sky-400" />
-          <span>بنك أفكار المحتوى والصيغ المعتمدة ({lines.length} صيغة وفكرة)</span>
-        </span>
-      </div>
+  // CASE 1: Genuine Numbered Ideas with descriptions & scenes (e.g. nasr_month9)
+  if (parsed.type === 'numbered_ideas') {
+    return (
+      <div className="space-y-4" dir="rtl" style={{ textAlign: 'right' }}>
+        {/* Creative Vision / Intro Note if present */}
+        {parsed.intro && (
+          <div
+            style={{
+              background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(14, 165, 233, 0.03))',
+              border: '1.5px solid rgba(56, 189, 248, 0.28)',
+              borderRadius: '12px',
+              padding: '14px 18px',
+              boxShadow: '0 4px 18px rgba(0, 0, 0, 0.25)'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <Lightbulb className="w-4 h-4 text-sky-400" />
+              <span style={{ color: '#38BDF8', fontSize: '0.82rem', fontWeight: 800 }}>
+                💡 الرؤية والتوجيه العام للمحتوى والتصوير:
+              </span>
+            </div>
+            <p style={{ margin: 0, color: '#E0F2FE', fontSize: '0.94rem', lineHeight: 1.75, fontWeight: 550 }}>
+              {parsed.intro}
+            </p>
+          </div>
+        )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-        {lines.map((line, idx) => {
-          const numStr = String(idx + 1).padStart(2, '0');
-          const hasQuote = /^["«]/i.test(line) || line.includes('"');
-          const hasDash = line.includes('—') || line.includes(' - ');
-          const isQuestion = /(\?|؟)$/.test(line);
-
-          let mainText = line;
-          let subText = null;
-
-          if (hasDash) {
-            const parts = line.split(/[—\-]/);
-            if (parts.length >= 2) {
-              mainText = parts[0].trim();
-              subText = parts.slice(1).join('—').trim();
-            }
-          }
-
-          return (
+        {/* Stack of Cohesive Idea Cards */}
+        <div className="space-y-3">
+          {parsed.items.map((item, idx) => (
             <div
               key={idx}
               style={{
                 background: 'rgba(15, 23, 42, 0.75)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: '10px',
-                padding: '12px 14px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                gap: '8px',
-                transition: 'all 0.2s ease',
+                border: '1px solid rgba(255, 255, 255, 0.09)',
+                borderRadius: '12px',
+                padding: '16px 18px',
+                transition: 'all 0.25s ease',
               }}
-              className="hover:border-sky-500/40 hover:bg-slate-900/90"
+              className="hover:border-sky-500/45 hover:bg-slate-900/90 shadow-sm"
             >
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                 <span style={{
-                  background: isQuestion ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255, 255, 255, 0.06)',
-                  color: isQuestion ? '#38BDF8' : '#CBD5E1',
+                  background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(14, 165, 233, 0.1))',
+                  color: '#7DD3FC',
+                  border: '1px solid rgba(56, 189, 248, 0.35)',
                   fontWeight: 800,
-                  fontSize: '0.74rem',
-                  padding: '2px 6px',
-                  borderRadius: '6px',
-                  shrink: 0,
-                  marginTop: '2px'
+                  fontSize: '0.78rem',
+                  padding: '3px 10px',
+                  borderRadius: '8px',
+                  flexShrink: 0,
+                  marginTop: '2px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px'
                 }}>
-                  {numStr}
+                  <Sparkles className="w-3 h-3 text-sky-400" />
+                  <span>فكرة {item.number}</span>
                 </span>
 
                 <div style={{ flex: 1 }}>
-                  <p style={{
+                  {/* Hook / Title */}
+                  <h5 style={{
                     margin: 0,
-                    color: hasQuote ? '#FEF08A' : '#F8FAFC',
-                    fontSize: '0.94rem',
-                    fontWeight: 650,
+                    color: '#FEF08A',
+                    fontSize: '1.02rem',
+                    fontWeight: 750,
                     lineHeight: 1.6
                   }}>
-                    {mainText}
-                  </p>
+                    {item.title}
+                  </h5>
 
-                  {subText && (
-                    <p style={{
-                      margin: '4px 0 0 0',
-                      color: '#94A3B8',
-                      fontSize: '0.84rem',
-                      lineHeight: 1.55,
+                  {/* Scene execution / details */}
+                  {item.details.length > 0 && (
+                    <div style={{
+                      marginTop: '10px',
+                      paddingTop: '10px',
+                      borderTop: '1px solid rgba(255, 255, 255, 0.06)'
                     }}>
-                      {subText}
-                    </p>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        color: '#38BDF8',
+                        fontSize: '0.74rem',
+                        fontWeight: 800,
+                        marginBottom: '6px'
+                      }}>
+                        <Camera className="w-3 h-3 text-sky-400" />
+                        <span>فكرة المشهد والتنفيذ:</span>
+                      </span>
+
+                      <div className="space-y-1.5">
+                        {item.details.map((detail, dIdx) => {
+                          const isTagLine = /^(Sensitive|Tags|Budget|Bundle|Product Launch)/i.test(detail) || detail.includes('/');
+                          return (
+                            <p
+                              key={dIdx}
+                              style={{
+                                margin: 0,
+                                color: isTagLine ? '#93C5FD' : '#CBD5E1',
+                                fontSize: '0.9rem',
+                                lineHeight: 1.65,
+                                fontWeight: isTagLine ? 600 : 450,
+                                paddingRight: '8px',
+                                borderRight: '2px solid rgba(56, 189, 248, 0.3)'
+                              }}
+                            >
+                              {detail}
+                            </p>
+                          );
+                        })}
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
             </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // CASE 2: Narrative Text & Paragraphs
+  return <GeneralSmartViewer scriptText={scriptText} />;
+}
+
+/* =========================================================================
+   D. PREMIUM SOCIAL MEDIA POST VIEWER (Real Post Copywriting Preview)
+   ========================================================================= */
+function SocialPostCard({ post, clientName, index }) {
+  const caption = post?.caption || '';
+  const lines = caption.split('\n').map(l => l.trim()).filter(Boolean);
+
+  const hasContact = lines.some(l => /^(📍|📞|العنوان|تليفون|الهاتف|للحجز|للتواصل)/i.test(l) || /01\d{9}/.test(l));
+  const isIdeaBank = lines.length >= 4 && !hasContact;
+
+  if (isIdeaBank) {
+    // Check if the first line is an overarching theme / campaign title
+    const hasThemeLine = lines.length > 3 && (lines[0].includes(':') || /^(عروض|خطة|أفكار|ملخص|استراتيجية)/i.test(lines[0])) && !/^["«]/.test(lines[0]);
+    const themeLine = hasThemeLine ? lines[0] : null;
+    const ideaLines = hasThemeLine ? lines.slice(1) : lines;
+
+    return (
+      <div
+        dir="rtl"
+        style={{
+          background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.85) 0%, rgba(10, 18, 36, 0.95) 100%)',
+          border: '1px solid rgba(255, 255, 255, 0.09)',
+          borderRadius: '16px',
+          padding: '20px 22px',
+          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)',
+          textAlign: 'right'
+        }}
+      >
+        {/* 1. Executive Deck Header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          paddingBottom: '14px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          marginBottom: '16px',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{
+              width: '38px',
+              height: '38px',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.15))',
+              border: '1px solid rgba(245, 158, 11, 0.35)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.1rem',
+              color: '#FBBF24'
+            }}>
+              💡
+            </div>
+            <div>
+              <div style={{ color: '#F8FAFC', fontWeight: 750, fontSize: '0.98rem' }}>
+                {post.title || clientName || 'بنك أفكار وزوايا ترويجية'}
+              </div>
+              <div style={{ color: '#94A3B8', fontSize: '0.78rem', fontWeight: 500 }}>
+                {clientName ? `${clientName} · أفكار ومحاور معتمدة` : 'بنك أفكار وزوايا ترويجية معتمدة'}
+              </div>
+            </div>
+          </div>
+
+          <span style={{
+            fontSize: '0.76rem',
+            fontWeight: 800,
+            color: '#38BDF8',
+            background: 'rgba(56, 189, 248, 0.12)',
+            border: '1px solid rgba(56, 189, 248, 0.25)',
+            padding: '4px 12px',
+            borderRadius: '999px',
+          }}>
+            {ideaLines.length} زوايا وأفكار تسويقية
+          </span>
+        </div>
+
+        {/* 2. Direction / Strategic Objective */}
+        {post.direction && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(14, 165, 233, 0.03))',
+            border: '1px solid rgba(56, 189, 248, 0.25)',
+            borderRadius: '12px',
+            padding: '12px 16px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '10px'
+          }}>
+            <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>🎯</span>
+            <div>
+              <span style={{ color: '#38BDF8', fontSize: '0.78rem', fontWeight: 800, display: 'block', marginBottom: '2px' }}>
+                الهدف والتوجيه الاستراتيجي:
+              </span>
+              <span style={{ color: '#F0F9FF', fontSize: '0.92rem', fontWeight: 600, lineHeight: 1.65 }}>
+                {post.direction}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* 3. Primary Theme Banner (if present) */}
+        {themeLine && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.14), rgba(217, 119, 6, 0.04))',
+            border: '1.5px solid rgba(245, 158, 11, 0.35)',
+            borderRadius: '12px',
+            padding: '14px 18px',
+            marginBottom: '16px',
+            boxShadow: '0 4px 16px rgba(245, 158, 11, 0.08)'
+          }}>
+            <span style={{ color: '#FBBF24', fontSize: '0.78rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+              <Flame className="w-3.5 h-3.5" />
+              <span>المحور الترويجي الأساسي (Core Campaign Hook):</span>
+            </span>
+            <p style={{ margin: 0, color: '#FEF08A', fontSize: '1.02rem', fontWeight: 750, lineHeight: 1.7 }}>
+              {themeLine}
+            </p>
+          </div>
+        )}
+
+        {/* 4. Creative Angles & Ideas Cards */}
+        <div className="space-y-2.5">
+          {ideaLines.map((line, lIdx) => {
+            const quoteMatch = line.match(/^["«](.*?)["»](?:\s*[—–-]\s*(.*))?$/);
+            const isBundle = /^(bundle|باقة)/i.test(line);
+            const isQuestion = /(\?|؟)$/.test(line.trim());
+
+            if (quoteMatch) {
+              const hook = quoteMatch[1];
+              const desc = quoteMatch[2];
+              return (
+                <div
+                  key={lIdx}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid rgba(255, 255, 255, 0.07)',
+                    borderRadius: '10px',
+                    padding: '12px 16px',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '10px',
+                    transition: 'all 0.2s ease',
+                  }}
+                  className="hover:border-sky-500/30 hover:bg-white/5"
+                >
+                  <span style={{ color: '#38BDF8', fontSize: '0.82rem', marginTop: '3px', flexShrink: 0 }}>
+                    ✦
+                  </span>
+                  <div style={{ flex: 1 }}>
+                    <span style={{ color: '#FFFFFF', fontWeight: 750, fontSize: '0.96rem', lineHeight: 1.7 }}>
+                      "{hook}"
+                    </span>
+                    {desc && (
+                      <span style={{ color: '#94A3B8', fontSize: '0.88rem', fontWeight: 500, marginRight: '8px', display: 'inline-block' }}>
+                        — {desc}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            }
+
+            if (isBundle) {
+              return (
+                <div
+                  key={lIdx}
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.03))',
+                    border: '1px solid rgba(16, 185, 129, 0.28)',
+                    borderRadius: '10px',
+                    padding: '12px 16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    transition: 'all 0.2s ease',
+                  }}
+                  className="hover:border-emerald-400/40 hover:bg-emerald-500/10"
+                >
+                  <span style={{
+                    background: 'rgba(16, 185, 129, 0.2)',
+                    color: '#6EE7B7',
+                    border: '1px solid rgba(16, 185, 129, 0.4)',
+                    padding: '2px 8px',
+                    borderRadius: '6px',
+                    fontSize: '0.74rem',
+                    fontWeight: 800,
+                    flexShrink: 0
+                  }}>
+                    🎁 Bundle باقة
+                  </span>
+                  <p style={{ margin: 0, color: '#ECFDF5', fontSize: '0.95rem', fontWeight: 700, lineHeight: 1.6, flex: 1 }}>
+                    {line.replace(/^(bundle|باقة)\s*:?/i, '').trim()}
+                  </p>
+                </div>
+              );
+            }
+
+            return (
+              <div
+                key={lIdx}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.025)',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  borderRadius: '10px',
+                  padding: '12px 16px',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '10px',
+                  transition: 'all 0.2s ease',
+                }}
+                className="hover:border-sky-500/30 hover:bg-white/5"
+              >
+                <span style={{ color: isQuestion ? '#C084FC' : '#38BDF8', fontSize: '0.82rem', marginTop: '3px', flexShrink: 0 }}>
+                  {isQuestion ? '💬' : '✦'}
+                </span>
+                <p style={{ margin: 0, color: '#E2E8F0', fontSize: '0.94rem', fontWeight: 600, lineHeight: 1.7, flex: 1 }}>
+                  {line}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* 5. Executive Deliverable Footer */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingTop: '14px',
+          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+          color: '#64748B',
+          fontSize: '0.78rem',
+          marginTop: '18px'
+        }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#7DD3FC', fontWeight: 600 }}>
+            <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+            <span>أفكار وزوايا معتمدة جاهزة للتنفيذ</span>
+          </span>
+          <span style={{ color: '#94A3B8', fontWeight: 700 }}>
+            {clientName || 'Approved Strategy'}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // ELSE: Real Social Media Post Copy (e.g. Koshary Sondos, Badr)
+  // Split caption into natural blocks
+  const rawParagraphs = caption.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+  const contentParagraphs = [];
+  const contactLines = [];
+
+  rawParagraphs.forEach(p => {
+    const pLines = p.split('\n').map(l => l.trim()).filter(Boolean);
+    const hasContactLine = pLines.some(l => /^(📍|📞|العنوان|تليفون|الهاتف|للحجز|للتواصل)/i.test(l) || /01\d{9}/.test(l));
+
+    if (hasContactLine) {
+      pLines.forEach(l => {
+        if (/^(📍|📞|العنوان|تليفون|الهاتف|للحجز|للتواصل)/i.test(l) || /01\d{9}/.test(l)) {
+          contactLines.push(l);
+        } else {
+          contentParagraphs.push(l);
+        }
+      });
+    } else {
+      contentParagraphs.push(p);
+    }
+  });
+
+  return (
+    <div
+      dir="rtl"
+      style={{
+        background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.85) 0%, rgba(10, 18, 36, 0.95) 100%)',
+        border: '1px solid rgba(255, 255, 255, 0.09)',
+        borderRadius: '16px',
+        padding: '20px 22px',
+        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)',
+        textAlign: 'right'
+      }}
+    >
+      {/* 1. Header (No Copy Button) */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        paddingBottom: '14px',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        marginBottom: '16px',
+        gap: '12px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{
+            width: '38px',
+            height: '38px',
+            borderRadius: '10px',
+            background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(129, 140, 248, 0.2))',
+            border: '1px solid rgba(56, 189, 248, 0.35)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '1.1rem',
+            color: '#38BDF8'
+          }}>
+            ✍️
+          </div>
+          <div>
+            <div style={{ color: '#F8FAFC', fontWeight: 750, fontSize: '0.94rem' }}>
+              {post.title || clientName || 'صياغة بوست معتمد'}
+            </div>
+            <div style={{ color: '#94A3B8', fontSize: '0.78rem', fontWeight: 500 }}>
+              صياغة محتوى سوشيال ميديا · Social Media Copy
+            </div>
+          </div>
+        </div>
+
+        <span style={{
+          fontSize: '0.76rem',
+          fontWeight: 800,
+          color: '#34D399',
+          background: 'rgba(16, 185, 129, 0.12)',
+          border: '1px solid rgba(16, 185, 129, 0.25)',
+          padding: '4px 12px',
+          borderRadius: '999px',
+        }}>
+          محتوى معتمد للنشر
+        </span>
+      </div>
+
+      {/* 2. Direction / Production Goal (if present) */}
+      {post.direction && (
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(14, 165, 233, 0.02))',
+          border: '1px dashed rgba(56, 189, 248, 0.3)',
+          borderRadius: '10px',
+          padding: '10px 14px',
+          marginBottom: '16px',
+          color: '#BAE6FD',
+          fontSize: '0.86rem',
+          lineHeight: 1.6,
+          fontWeight: 600
+        }}>
+          🎯 الهدف والتوجيه: {post.direction}
+        </div>
+      )}
+
+      {/* 3. Post Caption Text: Continuous, flowing Arabic typography */}
+      <div style={{ padding: '0 4px', marginBottom: '18px' }} className="space-y-3.5">
+        {contentParagraphs.map((para, pIdx) => {
+          const isCTA = para.includes('👇') || /^(قولنا|شاركنا|اكتب|مستنيين|تعالوا|اعمله منشن)/i.test(para);
+
+          if (isCTA) {
+            return (
+              <div
+                key={pIdx}
+                style={{
+                  background: 'rgba(251, 191, 36, 0.08)',
+                  border: '1px solid rgba(251, 191, 36, 0.25)',
+                  borderRadius: '10px',
+                  padding: '12px 16px',
+                  color: '#FEF08A',
+                  fontSize: '0.96rem',
+                  fontWeight: 650,
+                  lineHeight: 1.75
+                }}
+              >
+                {para}
+              </div>
+            );
+          }
+
+          return (
+            <p
+              key={pIdx}
+              style={{
+                margin: 0,
+                color: pIdx === 0 ? '#FFFFFF' : '#E2E8F0',
+                fontSize: pIdx === 0 ? '1.02rem' : '0.96rem',
+                fontWeight: pIdx === 0 ? 650 : 500,
+                lineHeight: 1.85,
+                whiteSpace: 'pre-line'
+              }}
+            >
+              {para}
+            </p>
           );
         })}
+      </div>
+
+      {/* 4. Contact & Location Chips (Clean interactive tags) */}
+      {contactLines.length > 0 && (
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.03)',
+          border: '1px solid rgba(255, 255, 255, 0.07)',
+          borderRadius: '12px',
+          padding: '12px 14px',
+          marginBottom: '14px',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '10px',
+          alignItems: 'center'
+        }}>
+          {contactLines.map((line, cIdx) => {
+            const isLocation = line.includes('📍') || line.includes('العنوان');
+            const phoneMatch = line.match(/(01\d{9})/);
+
+            if (phoneMatch) {
+              return (
+                <a
+                  key={cIdx}
+                  href={`tel:${phoneMatch[1]}`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    background: 'rgba(16, 185, 129, 0.12)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    color: '#6EE7B7',
+                    fontSize: '0.86rem',
+                    fontWeight: 700,
+                    textDecoration: 'none'
+                  }}
+                  className="hover:scale-105 active:scale-95 transition-transform"
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  <span dir="ltr">{line.replace(/📞/g, '').trim()}</span>
+                </a>
+              );
+            }
+
+            return (
+              <div
+                key={cIdx}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 12px',
+                  borderRadius: '8px',
+                  background: isLocation ? 'rgba(56, 189, 248, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                  border: `1px solid ${isLocation ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255, 255, 255, 0.08)'}`,
+                  color: isLocation ? '#BAE6FD' : '#CBD5E1',
+                  fontSize: '0.86rem',
+                  fontWeight: 600
+                }}
+              >
+                {isLocation ? <MapPin className="w-3.5 h-3.5 text-sky-400 shrink-0" /> : null}
+                <span>{line.replace(/^[📍📞]\s*/, '')}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* 5. Clean Deliverable Footer */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingTop: '12px',
+        borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+        color: '#64748B',
+        fontSize: '0.78rem'
+      }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#7DD3FC' }}>
+          <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+          <span>صياغة معتمدة للنشر على منصات التواصل الاجتماعي</span>
+        </span>
+        <span style={{ color: '#94A3B8', fontWeight: 600 }}>
+          {clientName || 'Social Media Copy'}
+        </span>
       </div>
     </div>
   );
@@ -1581,8 +2142,8 @@ export default function WorkModal({ isOpen, onClose, deliverable, client, catego
                             </h4>
                           )}
 
-                          <div style={{ overflowX: 'auto', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', direction: 'rtl', fontSize: '0.88rem' }}>
+                          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                            <table style={{ width: '100%', minWidth: '550px', borderCollapse: 'collapse', textAlign: 'right', direction: 'rtl', fontSize: '0.88rem' }}>
                               <thead>
                                 <tr style={{ background: 'rgba(14, 165, 233, 0.12)', borderBottom: '1px solid rgba(56, 189, 248, 0.2)' }}>
                                   {tbl.headers?.map((h, hIdx) => (
@@ -2107,13 +2668,9 @@ export default function WorkModal({ isOpen, onClose, deliverable, client, catego
                       <div className="deliverable-accordion" style={{ '--item-accent': accentColor }}>
                         {dbData.posts.map((post, pIdx) => {
                           const isOpenItem = openAccordionIdx === pIdx;
-                          const numStr = String(pIdx + 1).padStart(2, '0');
-                          const displayTitle = post.title || post.topic || `Post ${numStr}`;
-                          const badgeLabel = post.topic
-                            ? post.topic.length > 25
-                              ? post.topic.slice(0, 24) + '...'
-                              : post.topic
-                            : deliverable.badge || 'Post';
+                          const rawTitle = post.title || post.topic || `بوست ${pIdx + 1}`;
+                          const displayTitle = rawTitle.replace(/^بوست\s*\d+\s*[·\-:]\s*/i, '').trim() || rawTitle;
+                          const badgeLabel = deliverable.badge || 'منشور معتمد للنشر';
 
                           return (
                             <article key={pIdx} className={`accordion-item ${isOpenItem ? 'is-active' : ''}`} style={{ background: 'rgba(15, 23, 42, 0.6)', borderColor: 'rgba(255,255,255,0.08)', marginBottom: '10px', borderRadius: '12px' }}>
@@ -2125,7 +2682,24 @@ export default function WorkModal({ isOpen, onClose, deliverable, client, catego
                                 style={{ padding: '14px 18px' }}
                               >
                                 <div className="accordion-item__start">
-                                  <span className="accordion-item__num-badge" style={{ background: 'rgba(255,255,255,0.06)', color: '#CBD5E1' }}>{numStr}</span>
+                                  <span
+                                    style={{
+                                      background: 'rgba(56, 189, 248, 0.12)',
+                                      color: '#38BDF8',
+                                      border: '1px solid rgba(56, 189, 248, 0.25)',
+                                      borderRadius: '8px',
+                                      padding: '4px 10px',
+                                      fontSize: '0.78rem',
+                                      fontWeight: 750,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '5px',
+                                      flexShrink: 0
+                                    }}
+                                  >
+                                    <FileText className="w-3.5 h-3.5" />
+                                    <span>بوست {pIdx + 1}</span>
+                                  </span>
                                   <div className="accordion-item__meta" dir="rtl" style={{ textAlign: 'right' }}>
                                     <h4 className="accordion-item__title" style={{ fontSize: '0.98rem', fontWeight: 700, color: '#F8FAFC' }}>{displayTitle}</h4>
                                     {post.caption && (
@@ -2136,7 +2710,7 @@ export default function WorkModal({ isOpen, onClose, deliverable, client, catego
                                   </div>
                                 </div>
                                 <div className="accordion-item__end">
-                                  <span className="accordion-item__status-pill" style={{ background: 'rgba(255,255,255,0.05)', color: '#94A3B8', borderColor: 'rgba(255,255,255,0.08)' }}>
+                                  <span className="accordion-item__status-pill" style={{ background: 'rgba(56, 189, 248, 0.08)', color: '#7DD3FC', borderColor: 'rgba(56, 189, 248, 0.2)' }}>
                                     {badgeLabel}
                                   </span>
                                   <span className="accordion-item__chevron">
@@ -2151,27 +2725,14 @@ export default function WorkModal({ isOpen, onClose, deliverable, client, catego
                                   animate={{ opacity: 1, height: 'auto' }}
                                   exit={{ opacity: 0, height: 0 }}
                                   className="accordion-item__content"
-                                  style={{ display: 'block', padding: '18px', borderTop: '1px solid rgba(255,255,255,0.06)' }}
+                                  style={{ display: 'block', padding: '14px 16px', borderTop: '1px solid rgba(255,255,255,0.06)' }}
                                   dir="rtl"
                                 >
-                                  {post.direction && (
-                                    <div
-                                      style={{
-                                        background: 'rgba(56,189,248,0.06)',
-                                        border: '1px dashed rgba(56,189,248,0.25)',
-                                        borderRadius: '8px',
-                                        padding: '8px 12px',
-                                        marginBottom: '12px',
-                                        color: '#BAE6FD',
-                                        fontSize: '0.85rem',
-                                        fontWeight: 600,
-                                        textAlign: 'right',
-                                      }}
-                                    >
-                                      الهدف والتوجيه: {post.direction}
-                                    </div>
-                                  )}
-                                  <ScriptBlockViewer scriptText={post.caption} />
+                                  <SocialPostCard
+                                    post={post}
+                                    clientName={deliverable.client || client?.name || dbData.client}
+                                    index={pIdx}
+                                  />
                                 </motion.div>
                               )}
                             </article>

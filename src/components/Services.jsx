@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 const servicesList = [
@@ -35,6 +35,26 @@ const servicesList = [
 ];
 
 export default function Services() {
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth <= 768;
+    }
+    return false;
+  });
+  const [showAllServicesMobile, setShowAllServicesMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const displayedServices =
+    isMobile && !showAllServicesMobile ? servicesList.slice(0, 3) : servicesList;
+  const hasHiddenServices = isMobile && !showAllServicesMobile && servicesList.length > 3;
+
   return (
     <section className="section services" id="services">
       {/* Hidden SVG Master Gradients for Cloud Cards */}
@@ -94,9 +114,9 @@ export default function Services() {
         </motion.div>
 
         <div className="services__grid">
-          {servicesList.map((srv, idx) => (
+          {displayedServices.map((srv, idx) => (
             <motion.article
-              key={idx}
+              key={srv.title}
               className="service-card cursor-pointer"
               initial={{ opacity: 0, y: 25 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -120,6 +140,19 @@ export default function Services() {
             </motion.article>
           ))}
         </div>
+
+        {hasHiddenServices && (
+          <div className="flex justify-center mt-6">
+            <button
+              type="button"
+              className="px-5 py-2.5 text-xs font-semibold rounded-full bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-400/30 transition-all flex items-center gap-2 cursor-pointer shadow-sm hover:shadow-sky-500/20"
+              onClick={() => setShowAllServicesMobile(true)}
+            >
+              <span>عرض باقي الخدمات (+{servicesList.length - 3})</span>
+              <i className="fa-solid fa-chevron-down text-[10px]"></i>
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

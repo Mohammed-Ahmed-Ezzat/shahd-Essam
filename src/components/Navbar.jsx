@@ -70,10 +70,10 @@ export default function Navbar({ isLoaded, theme = 'light', onToggleTheme }) {
               >
                 <span className="flex items-center gap-2">
                   {theme === 'dark' ? <Moon className="w-4 h-4 text-sky-400" /> : <Sun className="w-4 h-4 text-amber-400" />}
-                  <span>{theme === 'dark' ? 'Night Mode (وضع ليلي)' : 'Day Mode (وضع نهاري)'}</span>
+                  <span>{theme === 'dark' ? 'Night Theme' : 'Day Theme'}</span>
                 </span>
                 <span className="text-[11px] font-bold text-sky-300 bg-sky-500/20 border border-sky-500/30 px-2.5 py-1 rounded-full">
-                  {theme === 'dark' ? 'Switch to Day ☀️' : 'Switch to Dark 🌙'}
+                  {theme === 'dark' ? 'Day Mode ☀️' : 'Night Mode 🌙'}
                 </span>
               </button>
             </li>

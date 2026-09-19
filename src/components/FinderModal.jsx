@@ -81,6 +81,21 @@ export default function FinderModal({ isOpen, onClose, categoryKey = 'medical', 
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
   const [activeTypeFilter, setActiveTypeFilter] = useState('all');
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth <= 768;
+    }
+    return false;
+  });
+  const [showAllClientsMobile, setShowAllClientsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (categoryKey) {
@@ -89,6 +104,7 @@ export default function FinderModal({ isOpen, onClose, categoryKey = 'medical', 
       setCurrentClientId(null);
       setSearchQuery('');
       setActiveTypeFilter('all');
+      setShowAllClientsMobile(false);
     }
   }, [categoryKey, isOpen]);
 
@@ -107,6 +123,13 @@ export default function FinderModal({ isOpen, onClose, categoryKey = 'medical', 
   const currentClient = currentClientId
     ? currentCategory.clients?.find((c) => c.id === currentClientId)
     : null;
+
+  const allCategoryClients = currentCategory.clients || [];
+  const visibleClients =
+    isMobile && !showAllClientsMobile && allCategoryClients.length > 3
+      ? allCategoryClients.slice(0, 3)
+      : allCategoryClients;
+  const hasHiddenClients = isMobile && !showAllClientsMobile && allCategoryClients.length > 3;
 
   const currentSectorObj = SECTORS.find((s) => s.key === currentCategoryKey);
   const sectorTitleEn = currentSectorObj?.label || currentCategory.name;
@@ -144,20 +167,53 @@ export default function FinderModal({ isOpen, onClose, categoryKey = 'medical', 
     return results;
   }, [searchQuery]);
 
-  // Filter deliverables
+  // Dynamic filter definitions (matching user request: only show sections/tabs that actually exist in the current folder)
+  const FILTER_DEFINITIONS = useMemo(() => [
+    { id: 'script', label: 'Reels', match: (d) => d.type === 'script' },
+    { id: 'sheet', label: 'Plans', match: (d) => isSheetDeliverable(d) || d.type === 'sheet_plan' || d.type === 'xlsx' },
+    { id: 'posts', label: 'Posts', match: (d) => d.type === 'approved_posts' || d.type === 'posts' || d.type === 'post' },
+    { id: 'pdf', label: 'Decks', match: (d) => d.type === 'pdf_deck' || d.type === 'pdf' },
+    { id: 'episodes', label: 'Podcasts', match: (d) => d.type === 'episodes' },
+    { id: 'launch_plan', label: 'Launch Plans', match: (d) => d.type === 'launch_plan' },
+    { id: 'trends_library', label: 'Trends', match: (d) => d.type === 'trends_library' }
+  ], []);
+
+  // Compute available filters for currently active client
+  const availableFilters = useMemo(() => {
+    if (!currentClient || !currentClient.deliverables || currentClient.deliverables.length === 0) {
+      return [];
+    }
+    const delivs = currentClient.deliverables;
+    const matchingDefs = FILTER_DEFINITIONS.filter((def) => delivs.some((d) => def.match(d)));
+
+    // If client only has 1 type or none, no filter bar needed
+    if (matchingDefs.length <= 1) {
+      return [];
+    }
+
+    return [{ id: 'all', label: 'All', match: () => true }, ...matchingDefs];
+  }, [currentClient, FILTER_DEFINITIONS]);
+
+  // If active filter is not in available filters for this client, reset to 'all'
+  useEffect(() => {
+    if (activeTypeFilter !== 'all') {
+      const exists = availableFilters.some((f) => f.id === activeTypeFilter);
+      if (!exists) {
+        setActiveTypeFilter('all');
+      }
+    }
+  }, [availableFilters, activeTypeFilter]);
+
+  // Filter deliverables based on dynamic active filter
   const filteredDeliverables = useMemo(() => {
     if (!currentClient || !currentClient.deliverables) return [];
     if (activeTypeFilter === 'all') return currentClient.deliverables;
 
-    return currentClient.deliverables.filter((d) => {
-      if (activeTypeFilter === 'script') return d.type === 'script';
-      if (activeTypeFilter === 'sheet') return isSheetDeliverable(d);
-      if (activeTypeFilter === 'posts') return d.type === 'approved_posts';
-      if (activeTypeFilter === 'pdf') return d.type === 'pdf_deck' || d.type === 'pdf';
-      if (activeTypeFilter === 'episodes') return d.type === 'episodes';
-      return true;
-    });
-  }, [currentClient, activeTypeFilter]);
+    const currentDef = FILTER_DEFINITIONS.find((def) => def.id === activeTypeFilter);
+    if (!currentDef) return currentClient.deliverables;
+
+    return currentClient.deliverables.filter((d) => currentDef.match(d));
+  }, [currentClient, activeTypeFilter, FILTER_DEFINITIONS]);
 
   const handleClientClick = (client, catKey) => {
     if (catKey) setCurrentCategoryKey(catKey);
@@ -183,11 +239,11 @@ export default function FinderModal({ isOpen, onClose, categoryKey = 'medical', 
   };
 
   const getGridClass = (count) => {
-    if (count <= 1) return 'grid grid-cols-1 max-w-xl mx-auto gap-4';
-    if (count === 2) return 'grid grid-cols-1 sm:grid-cols-2 gap-4';
-    if (count === 3) return 'grid grid-cols-1 sm:grid-cols-3 gap-4';
-    if (count === 4) return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4';
-    return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4';
+    if (count <= 1) return 'grid grid-cols-1 max-w-xl mx-auto gap-3.5 sm:gap-4';
+    if (count === 2) return 'grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4';
+    if (count === 3) return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4';
+    if (count === 4) return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4';
+    return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4';
   };
 
   const getItemTypeMeta = (type) => {
@@ -622,7 +678,15 @@ export default function FinderModal({ isOpen, onClose, categoryKey = 'medical', 
             </div>
 
             {/* Mobile Sector Pills Bar (Phones & Small Tablets) */}
-            <div className="md:hidden flex items-center gap-1.5 px-3 py-2 bg-slate-950/90 border-b border-white/5 overflow-x-auto shrink-0" data-lenis-prevent="true">
+            <div
+              className="md:hidden flex items-center gap-1.5 px-3 py-2 bg-slate-950/90 border-b border-white/5 overflow-x-auto shrink-0"
+              data-lenis-prevent="true"
+              style={{
+                WebkitOverflowScrolling: 'touch',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
+            >
               {SECTORS.map((sec) => {
                 const isActive = currentCategoryKey === sec.key;
                 return (
@@ -714,29 +778,45 @@ export default function FinderModal({ isOpen, onClose, categoryKey = 'medical', 
                       </div>
                     </div>
 
-                    {/* Filter Pills in Client View */}
-                    {currentLevel === 'client' && (
-                      <div className="flex items-center gap-1.5 mt-3 pt-2.5 border-t border-white/5 overflow-x-auto">
-                        {[
-                          { id: 'all', label: 'All' },
-                          { id: 'script', label: 'Reels' },
-                          { id: 'sheet', label: 'Plans' },
-                          { id: 'posts', label: 'Posts' },
-                          { id: 'pdf', label: 'Decks' },
-                          { id: 'episodes', label: 'Podcasts' }
-                        ].map((flt) => (
-                          <button
-                            key={flt.id}
-                            onClick={() => setActiveTypeFilter(flt.id)}
-                            className={`px-2.5 py-1 rounded-md text-xs transition-colors whitespace-nowrap ${
-                              activeTypeFilter === flt.id
-                                ? 'bg-sky-500/20 text-sky-300 font-bold border border-sky-400/30'
-                                : 'bg-white/5 text-slate-400 hover:text-white'
-                            }`}
-                          >
-                            {flt.label}
-                          </button>
-                        ))}
+                    {/* Filter Pills in Client View - ONLY shown if more than 1 category exists */}
+                    {currentLevel === 'client' && availableFilters.length > 1 && (
+                      <div
+                        className="flex items-center gap-1.5 mt-3 pt-2.5 border-t border-white/5 overflow-x-auto"
+                        style={{
+                          WebkitOverflowScrolling: 'touch',
+                          scrollbarWidth: 'none',
+                          msOverflowStyle: 'none',
+                        }}
+                      >
+                        {availableFilters.map((flt) => {
+                          const count =
+                            flt.id === 'all'
+                              ? currentClient.deliverables.length
+                              : currentClient.deliverables.filter((d) => flt.match(d)).length;
+
+                          return (
+                            <button
+                              key={flt.id}
+                              onClick={() => setActiveTypeFilter(flt.id)}
+                              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+                                activeTypeFilter === flt.id
+                                  ? 'bg-sky-500/20 text-sky-300 font-bold border border-sky-400/35 shadow-sm'
+                                  : 'bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 border border-transparent'
+                              }`}
+                            >
+                              <span>{flt.label}</span>
+                              <span
+                                className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                                  activeTypeFilter === flt.id
+                                    ? 'bg-sky-400/25 text-sky-200'
+                                    : 'bg-white/10 text-slate-400'
+                                }`}
+                              >
+                                {count}
+                              </span>
+                            </button>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -816,90 +896,118 @@ export default function FinderModal({ isOpen, onClose, categoryKey = 'medical', 
                   ) : currentLevel === 'folder' ? (
                     // LEVEL 1: CLIENTS
                     viewMode === 'grid' ? (
-                      <div className={getGridClass(currentCategory.clients?.length || 0)}>
-                        {currentCategory.clients?.map((client, idx) => {
-                          const clientAccent = client.color || sectorAccent;
-                          const delivsCount = client.deliverables ? client.deliverables.length : 0;
-                          return (
-                            <div
-                              key={client.id || idx}
-                              className="bg-slate-900/50 hover:bg-slate-900/80 border border-white/10 hover:border-sky-500/40 rounded-xl p-4 cursor-pointer transition-all flex flex-col justify-between group"
-                              onClick={() => handleClientClick(client)}
-                            >
-                              <div>
-                                <div className="flex items-center justify-between mb-3">
-                                  <span
-                                    className="text-[10px] font-semibold px-2 py-0.5 rounded"
-                                    style={{ background: `${clientAccent}18`, color: clientAccent }}
-                                  >
-                                    {client.tag}
-                                  </span>
-                                  <span className="text-[11px] text-slate-400 font-mono">
-                                    {delivsCount} Files
-                                  </span>
-                                </div>
-
-                                <div className="flex items-center gap-3 mb-2">
-                                  <div
-                                    className="w-10 h-10 rounded-xl flex items-center justify-center text-base shrink-0 transition-transform group-hover:scale-105"
-                                    style={{ background: `${clientAccent}20`, color: clientAccent }}
-                                  >
-                                    <i className={client.icon || 'fa-solid fa-folder'}></i>
-                                  </div>
-                                  <div className="min-w-0" dir="rtl" style={{ textAlign: 'right', width: '100%' }}>
-                                    <h4 className="text-sm font-bold text-white m-0 truncate group-hover:text-sky-300 transition-colors">
-                                      {client.name}
-                                    </h4>
-                                    <p className="text-xs text-slate-400 m-0 truncate">
-                                      {client.subtitle || client.tag}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="pt-2.5 border-t border-white/5 flex items-center justify-end text-xs text-sky-400 group-hover:text-sky-300 transition-colors">
-                                <span className="flex items-center gap-1 font-medium">
-                                  <span>Explore</span>
-                                  <ArrowRight className="w-3 h-3" />
-                                </span>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="bg-slate-900/40 border border-white/10 rounded-xl overflow-hidden">
-                        <table className="w-full text-left text-xs">
-                          <thead>
-                            <tr className="bg-slate-900/80 text-slate-400 border-b border-white/5 font-semibold">
-                              <th className="p-3">Client</th>
-                              <th className="p-3">Category</th>
-                              <th className="p-3">Files</th>
-                              <th className="p-3 text-right">Action</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-white/5">
-                            {currentCategory.clients?.map((client, idx) => (
-                              <tr
-                                key={idx}
-                                className="hover:bg-sky-500/10 transition-colors cursor-pointer"
+                      <div>
+                        <div className={getGridClass(visibleClients.length)}>
+                          {visibleClients.map((client, idx) => {
+                            const clientAccent = client.color || sectorAccent;
+                            const delivsCount = client.deliverables ? client.deliverables.length : 0;
+                            return (
+                              <div
+                                key={client.id || idx}
+                                className="bg-slate-900/50 hover:bg-slate-900/80 border border-white/10 hover:border-sky-500/40 rounded-xl p-4 cursor-pointer transition-all flex flex-col justify-between group"
                                 onClick={() => handleClientClick(client)}
                               >
-                                <td className="p-3 font-semibold text-white flex items-center gap-2" dir="rtl">
-                                  <span style={{ color: client.color || sectorAccent }}>
-                                    <i className={client.icon || 'fa-solid fa-folder'}></i>
+                                <div>
+                                  <div className="flex items-center justify-between mb-3">
+                                    <span
+                                      className="text-[10px] font-semibold px-2 py-0.5 rounded"
+                                      style={{ background: `${clientAccent}18`, color: clientAccent }}
+                                    >
+                                      {client.tag}
+                                    </span>
+                                    <span className="text-[11px] text-slate-400 font-mono">
+                                      {delivsCount} Files
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-center gap-3 mb-2">
+                                    <div
+                                      className="w-10 h-10 rounded-xl flex items-center justify-center text-base shrink-0 transition-transform group-hover:scale-105"
+                                      style={{ background: `${clientAccent}20`, color: clientAccent }}
+                                    >
+                                      <i className={client.icon || 'fa-solid fa-folder'}></i>
+                                    </div>
+                                    <div className="min-w-0" dir="rtl" style={{ textAlign: 'right', width: '100%' }}>
+                                      <h4 className="text-sm font-bold text-white m-0 truncate group-hover:text-sky-300 transition-colors">
+                                        {client.name}
+                                      </h4>
+                                      <p className="text-xs text-slate-400 m-0 truncate">
+                                        {client.subtitle || client.tag}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="pt-2.5 border-t border-white/5 flex items-center justify-end text-xs text-sky-400 group-hover:text-sky-300 transition-colors">
+                                  <span className="flex items-center gap-1 font-medium">
+                                    <span>Explore</span>
+                                    <ArrowRight className="w-3 h-3" />
                                   </span>
-                                  <span>{client.name}</span>
-                                </td>
-                                <td className="p-3 text-slate-400">{client.tag}</td>
-                                <td className="p-3 text-slate-500 font-mono">{client.deliverables?.length || 0}</td>
-                                <td className="p-3 text-right">
-                                  <span className="text-sky-400 hover:underline">Open</span>
-                                </td>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        {hasHiddenClients && (
+                          <div className="flex justify-center mt-4">
+                            <button
+                              type="button"
+                              className="px-4 py-2 text-xs font-semibold rounded-lg bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-500/30 transition-all flex items-center gap-2"
+                              onClick={() => setShowAllClientsMobile(true)}
+                            >
+                              <span>عرض باقي الحسابات (+{allCategoryClients.length - 3})</span>
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="bg-slate-900/40 border border-white/10 rounded-xl overflow-hidden">
+                          <table className="w-full text-left text-xs">
+                            <thead>
+                              <tr className="bg-slate-900/80 text-slate-400 border-b border-white/5 font-semibold">
+                                <th className="p-3">Client</th>
+                                <th className="p-3">Category</th>
+                                <th className="p-3">Files</th>
+                                <th className="p-3 text-right">Action</th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                              {visibleClients.map((client, idx) => (
+                                <tr
+                                  key={idx}
+                                  className="hover:bg-sky-500/10 transition-colors cursor-pointer"
+                                  onClick={() => handleClientClick(client)}
+                                >
+                                  <td className="p-3 font-semibold text-white flex items-center gap-2" dir="rtl">
+                                    <span style={{ color: client.color || sectorAccent }}>
+                                      <i className={client.icon || 'fa-solid fa-folder'}></i>
+                                    </span>
+                                    <span>{client.name}</span>
+                                  </td>
+                                  <td className="p-3 text-slate-400">{client.tag}</td>
+                                  <td className="p-3 text-slate-500 font-mono">{client.deliverables?.length || 0}</td>
+                                  <td className="p-3 text-right">
+                                    <span className="text-sky-400 hover:underline">Open</span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                        {hasHiddenClients && (
+                          <div className="flex justify-center mt-4">
+                            <button
+                              type="button"
+                              className="px-4 py-2 text-xs font-semibold rounded-lg bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-500/30 transition-all flex items-center gap-2"
+                              onClick={() => setShowAllClientsMobile(true)}
+                            >
+                              <span>عرض باقي الحسابات (+{allCategoryClients.length - 3})</span>
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )
                   ) : (
@@ -938,12 +1046,12 @@ export default function FinderModal({ isOpen, onClose, categoryKey = 'medical', 
                                   <div
                                     className={
                                       count === 2
-                                        ? 'grid grid-cols-1 sm:grid-cols-2 gap-4'
+                                        ? 'grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4'
                                         : count === 3
-                                        ? 'grid grid-cols-1 sm:grid-cols-3 gap-4'
+                                        ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4'
                                         : count === 4
-                                        ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'
-                                        : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
+                                        ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4'
+                                        : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4'
                                     }
                                   >
                                     {group.items.map((item, idx) =>
@@ -960,14 +1068,14 @@ export default function FinderModal({ isOpen, onClose, categoryKey = 'medical', 
                         <div
                           className={
                             filteredDeliverables.length === 1
-                              ? 'grid grid-cols-1 max-w-xl mx-auto gap-4'
+                              ? 'grid grid-cols-1 max-w-xl mx-auto gap-3.5 sm:gap-4'
                               : filteredDeliverables.length === 2
-                              ? 'grid grid-cols-1 sm:grid-cols-2 gap-4'
+                              ? 'grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4'
                               : filteredDeliverables.length === 3
-                              ? 'grid grid-cols-1 sm:grid-cols-3 gap-4'
+                              ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4'
                               : filteredDeliverables.length === 4
-                              ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'
-                              : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
+                              ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4'
+                              : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4'
                           }
                         >
                           {filteredDeliverables.map((item, idx) => {
@@ -983,8 +1091,11 @@ export default function FinderModal({ isOpen, onClose, categoryKey = 'medical', 
                         </div>
                       )
                     ) : (
-                      <div className="bg-slate-900/40 border border-white/10 rounded-xl overflow-hidden">
-                        <table className="w-full text-left text-xs">
+                      <div
+                        className="bg-slate-900/40 border border-white/10 rounded-xl overflow-x-auto"
+                        style={{ WebkitOverflowScrolling: 'touch' }}
+                      >
+                        <table className="w-full text-left text-xs min-w-[500px]">
                           <thead>
                             <tr className="bg-slate-900/80 text-slate-400 border-b border-white/5 font-semibold">
                               <th className="p-3">Deliverable</th>
@@ -1057,16 +1168,6 @@ export default function FinderModal({ isOpen, onClose, categoryKey = 'medical', 
                       </div>
                     )
                   )}
-                </div>
-
-                {/* Status Bar */}
-                <div className="px-4 py-2 bg-slate-950 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-500 shrink-0 mt-auto">
-                  <span>
-                    {currentLevel === 'client'
-                      ? `${filteredDeliverables.length} Deliverables`
-                      : `${currentCategory.clients?.length || 0} Clients`}
-                  </span>
-                  <span className="font-mono text-[10px]">shahd.ic · Explorer</span>
                 </div>
               </main>
             </div>

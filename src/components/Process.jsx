@@ -34,9 +34,44 @@ const processSteps = [
   }
 ];
 
+const mobileProcessSteps = [
+  {
+    num: '01',
+    icon: 'fa-solid fa-chess-knight',
+    title: 'Strategy',
+    desc: 'Mapping the concept to platform, timing, format, and audience psychology for maximum impact.'
+  },
+  {
+    num: '02',
+    icon: 'fa-solid fa-pen-ruler',
+    title: 'Creation',
+    desc: 'Production — shooting, editing, designing. Where the idea becomes tangible, polished content.'
+  },
+  {
+    num: '03',
+    icon: 'fa-solid fa-chart-line',
+    title: 'Results',
+    desc: 'Tracking, analyzing, and optimizing. Real numbers, real growth, real ROI.'
+  }
+];
+
 export default function Process() {
   const trackRef = useRef(null);
   const [lineWidth, setLineWidth] = useState(0);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth <= 768;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -58,6 +93,8 @@ export default function Process() {
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const stepsToRender = isMobile ? mobileProcessSteps : processSteps;
 
   return (
     <section className="section process" id="process">
@@ -82,14 +119,17 @@ export default function Process() {
             <div
               className="process__line-fill transition-all duration-300 ease-out"
               id="processLineFill"
-              style={{ width: `${lineWidth}%` }}
+              style={{
+                width: isMobile ? '100%' : `${lineWidth}%`,
+                height: isMobile ? `${lineWidth}%` : '100%'
+              }}
             ></div>
           </div>
 
-          {processSteps.map((step, idx) => (
+          {stepsToRender.map((step, idx) => (
             <motion.div
-              key={idx}
-              className={`process-step ${idx === 0 ? 'process-step--idea' : ''} cursor-pointer`}
+              key={step.title}
+              className={`process-step ${step.title === 'Idea' ? 'process-step--idea' : ''} cursor-pointer`}
               data-step={idx + 1}
               role="button"
               tabIndex={0}

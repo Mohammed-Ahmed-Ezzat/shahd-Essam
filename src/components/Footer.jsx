@@ -10,7 +10,6 @@ export default function Footer() {
           <p className="footer__copy">
             © {currentYear} <span className="footer__brand-highlight">shahd.ic</span> · All rights reserved.
           </p>
-
           <p className="footer__dev">
             <span>Designed &amp; Developed by</span>
             <a

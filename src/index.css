@@ -783,7 +783,7 @@ span {
 /* Dark Mode Sky Adaptations */
 [data-theme="dark"] .sky,
 .dark .sky {
-  background: radial-gradient(circle at 50% 12%, #0c1c38 0%, #071224 42%, #030712 100%) !important;
+  background: radial-gradient(circle at 50% 20%, #071328 0%, #040c1b 45%, #030712 85%, #030712 100%) !important;
 }
 
 [data-theme="dark"] .sky__stars,
@@ -793,13 +793,25 @@ span {
 
 [data-theme="dark"] .sky__glow,
 .dark .sky__glow {
-  background: radial-gradient(circle at 50% 18%,
-    rgba(56, 189, 248, 0.22) 0%,
-    rgba(129, 140, 248, 0.16) 35%,
-    rgba(56, 189, 248, 0.05) 65%,
-    transparent 85%
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: 100vh !important;
+  aspect-ratio: auto !important;
+  top: 0 !important;
+  left: 0 !important;
+  transform: none !important;
+  background: radial-gradient(circle at 50% 25%,
+    rgba(56, 189, 248, 0.08) 0%,
+    rgba(99, 102, 241, 0.04) 40%,
+    transparent 70%
   ) !important;
-  opacity: 0.95 !important;
+  opacity: 0.8 !important;
+}
+
+/* Atmospheric Clouds: Active in Daylight mode, hidden in Cosmic Night mode to prevent color patches */
+[data-theme="dark"] .sky__clouds-layer,
+.dark .sky__clouds-layer {
+  display: none !important;
 }
 
 /* Floating Atmospheric Cloud Layers */
@@ -845,19 +857,6 @@ span {
   left: 25%;
   background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.4) 0%, rgba(186, 230, 253, 0.2) 45%, transparent 75%);
   animation: driftCloud 56s ease-in-out infinite alternate;
-}
-
-[data-theme="dark"] .sky-floating-cloud--1 {
-  background: radial-gradient(ellipse at center, rgba(14, 165, 233, 0.25) 0%, rgba(30, 58, 138, 0.12) 50%, transparent 75%) !important;
-  opacity: 0.65 !important;
-}
-[data-theme="dark"] .sky-floating-cloud--2 {
-  background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.22) 0%, rgba(15, 23, 42, 0.25) 50%, transparent 75%) !important;
-  opacity: 0.6 !important;
-}
-[data-theme="dark"] .sky-floating-cloud--3 {
-  background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.2) 0%, rgba(2, 6, 23, 0.25) 50%, transparent 75%) !important;
-  opacity: 0.55 !important;
 }
 
 @keyframes driftCloud {
@@ -3488,6 +3487,7 @@ body.modal-open .hero__badge-dot {
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
 
 }
@@ -4983,21 +4983,15 @@ body.modal-open .hero__badge-dot {
     font-size: 0.76rem;
   }
 
-  /* Services Grid */
+  /* Services Grid - Display all 6 core services cleanly */
   .services__grid {
     grid-template-columns: 1fr;
-    gap: 14px;
+    gap: 16px;
   }
 
   .service-card {
-    padding: 34px 24px 24px 24px;
-  }
-
-  /* In phone mode, display only the top 3 core services: 1 (Social Media Management), 2 (Content Creation), 5 (Reels / Short-form Content) */
-  .service-card:nth-child(3),
-  .service-card:nth-child(4),
-  .service-card:nth-child(6) {
-    display: none !important;
+    display: flex !important;
+    padding: 30px 22px 22px 22px;
   }
 
   /* Vault Archive */
@@ -6492,31 +6486,48 @@ html, body, .sky, .navbar, .service-card, .about__bio-card, .process-step, .cont
   background: linear-gradient(180deg, transparent 0%, rgba(3, 8, 18, 0.85) 50%, rgba(2, 5, 12, 0.98) 100%) !important;
 }
 
-/* Process section in Dark Mode */
-[data-theme="dark"] .process-step,
-.dark .process-step {
-  background: linear-gradient(155deg, rgba(16, 27, 48, 0.88), rgba(9, 16, 30, 0.94)) !important;
-  border: 1.5px solid rgba(56, 189, 248, 0.22) !important;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.65), 0 0 18px rgba(56, 189, 248, 0.08) !important;
+/* Process section in Dark Mode (Consistent with Light Mode - Open flow without rectangular card box) */
+@media (min-width: 769px) {
+  [data-theme="dark"] .process-step,
+  .dark .process-step {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  [data-theme="dark"] .process-step:hover,
+  .dark .process-step:hover {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    transform: translateY(-4px) !important;
+  }
 }
 
-[data-theme="dark"] .process-step:hover,
-.dark .process-step:hover {
-  border-color: rgba(56, 189, 248, 0.55) !important;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.75), 0 0 28px rgba(56, 189, 248, 0.22) !important;
-  transform: translateY(-5px) !important;
+@media (max-width: 768px) {
+  [data-theme="dark"] .process-step,
+  .dark .process-step {
+    background: rgba(10, 24, 48, 0.45) !important;
+    backdrop-filter: blur(10px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(10px) saturate(140%) !important;
+    border: 1px solid rgba(56, 189, 248, 0.25) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+    border-radius: 14px;
+  }
 }
 
 [data-theme="dark"] .process-step h3,
 .dark .process-step h3 {
   color: #FFFFFF !important;
-  text-shadow: none !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5) !important;
 }
 
 [data-theme="dark"] .process-step p,
 .dark .process-step p {
   color: #CBD5E1 !important;
-  text-shadow: none !important;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5) !important;
 }
 
 [data-theme="dark"] .process-step__num,
@@ -6535,17 +6546,19 @@ html, body, .sky, .navbar, .service-card, .about__bio-card, .process-step, .cont
 
 [data-theme="dark"] .process-step i,
 .dark .process-step i {
-  background: rgba(8, 17, 34, 0.95) !important;
+  background: rgba(12, 23, 45, 0.45) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
   border: 2px solid rgba(56, 189, 248, 0.45) !important;
   color: #38BDF8 !important;
-  box-shadow: 0 0 20px rgba(56, 189, 248, 0.25) !important;
+  box-shadow: 0 0 22px rgba(56, 189, 248, 0.25) !important;
 }
 
 [data-theme="dark"] .process-step:hover i,
 [data-theme="dark"] .process-step.active i,
 .dark .process-step:hover i,
 .dark .process-step.active i {
-  background: radial-gradient(circle at 35% 35%, rgba(14, 165, 233, 0.45), #0B172E 85%) !important;
+  background: radial-gradient(circle at 35% 35%, rgba(14, 165, 233, 0.5), rgba(11, 23, 46, 0.6)) !important;
   border-color: #7DD3FC !important;
   color: #FFFFFF !important;
   box-shadow: 0 0 28px rgba(56, 189, 248, 0.7), 0 0 45px rgba(14, 165, 233, 0.3) !important;
@@ -6560,8 +6573,9 @@ html, body, .sky, .navbar, .service-card, .about__bio-card, .process-step, .cont
 
 [data-theme="dark"] .process-step__icon-wrap,
 .dark .process-step__icon-wrap {
-  background: rgba(14, 165, 233, 0.15) !important;
-  border-color: rgba(56, 189, 248, 0.35) !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 [data-theme="dark"] .process__line-bg,
@@ -6766,11 +6780,11 @@ html, body, .sky, .navbar, .service-card, .about__bio-card, .process-step, .cont
   box-shadow: 0 0 16px rgba(56, 189, 248, 0.9), 0 0 25px rgba(129, 140, 248, 0.6) !important;
 }
 
-/* Footer in Dark Mode */
+/* Footer in Dark Mode (100% Transparent so stars shine through to the bottom) */
 [data-theme="dark"] .footer,
 .dark .footer {
-  background: #02050c !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: transparent !important;
+  border-top: none !important;
 }
 
 [data-theme="dark"] .footer__copy,
@@ -6828,6 +6842,10 @@ html, body, .sky, .navbar, .service-card, .about__bio-card, .process-step, .cont
   z-index: 2;
 }
 
+.sky-3d--day {
+  display: none !important;
+}
+
 /* Position elements strictly away from folders & figure */
 .bg-3d-element {
   position: absolute;
@@ -6855,19 +6873,10 @@ html, body, .sky, .navbar, .service-card, .about__bio-card, .process-step, .cont
   opacity: 0.8;
 }
 
-/* Scale down smoothly on smaller screens so it remains subtle */
+/* Completely hide all 3D backdrop elements on phone mode (max-width: 768px) */
 @media (max-width: 768px) {
-  .bg-3d-element--top-left {
-    top: 12%;
-    left: 4%;
-    transform: scale(0.65);
-  }
-  .bg-3d-element--bottom-left {
-    bottom: 8%;
-    left: 4%;
-    transform: scale(0.65);
-  }
-  .bg-3d-element--mid-left {
+  .sky-3d-backdrop,
+  .bg-3d-element {
     display: none !important;
   }
 }
