@@ -1,0 +1,368 @@
+import React, { useRef } from 'react';
+import { motion } from 'framer-motion';
+import confetti from 'canvas-confetti';
+import { Sparkles, TrendingUp, Flame, Wand2 } from 'lucide-react';
+
+export default function Hero({ onOpenFolder }) {
+  const woodSwingRef = useRef(null);
+  const figureRef = useRef(null);
+
+  const triggerEpicSparkles = (e) => {
+    // 1. Dynamic Wooden Sign Swing Physics
+    if (woodSwingRef.current) {
+      woodSwingRef.current.classList.remove('knocking');
+      void woodSwingRef.current.offsetWidth;
+      woodSwingRef.current.classList.add('knocking');
+      setTimeout(() => {
+        if (woodSwingRef.current) {
+          woodSwingRef.current.classList.remove('knocking');
+        }
+      }, 900);
+    }
+
+    // 2. Mind-blowing Canvas Confetti Starburst
+    const rect = figureRef.current?.getBoundingClientRect();
+    const x = rect ? (rect.left + rect.width / 2) / window.innerWidth : 0.5;
+    const y = rect ? (rect.top + rect.height / 2) / window.innerHeight : 0.5;
+
+    // Stars and Circles burst
+    confetti({
+      origin: { x, y },
+      particleCount: 45,
+      spread: 80,
+      startVelocity: 30,
+      gravity: 0.65,
+      ticks: 200,
+      scalar: 1.2,
+      shapes: ['star', 'circle'],
+      colors: ['#38BDF8', '#F43F5E', '#FBBF24', '#34D399', '#C084FC', '#FFFFFF'],
+    });
+
+    // Complementary ambient golden sparkles
+    setTimeout(() => {
+      confetti({
+        origin: { x, y: y - 0.05 },
+        particleCount: 20,
+        spread: 60,
+        startVelocity: 22,
+        scalar: 0.9,
+        shapes: ['star'],
+        colors: ['#FEF08A', '#FDE68A', '#7DD3FC'],
+      });
+    }, 120);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      triggerEpicSparkles(e);
+    }
+  };
+
+  return (
+    <section className="hero" id="home">
+      <div className="container hero__layout">
+        {/* Left Column: Hero Content */}
+        <motion.div
+          className="hero__content"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <motion.div
+            className="hero__badge"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+          >
+            <span className="hero__badge-dot"></span>
+            <span>Available for Strategic Growth &amp; Collaborations</span>
+          </motion.div>
+
+          <motion.h1
+            className="hero__title"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+          >
+            I craft <span className="gradient-text hero-highlight">scroll&#8209;stopping</span> content &amp; viral growth.
+          </motion.h1>
+
+          <motion.p
+            className="hero__intro"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45, duration: 0.8 }}
+          >
+            I'm <strong>Shahd Essam</strong> — Freelance Social Media Specialist &amp; Content Creator helping ambitious
+            brands build a strong online presence through creative content, strategy development, and audience-focused
+            communication.
+          </motion.p>
+
+          <motion.div
+            className="hero__tags-bar"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.8 }}
+          >
+            <span className="hero__tag-item">
+              <Wand2 className="w-4 h-4 text-sky-300 inline-block mr-1.5" /> Viral Video Scripting
+            </span>
+            <span className="hero__tag-item">
+              <TrendingUp className="w-4 h-4 text-emerald-400 inline-block mr-1.5" /> Acquisition Funnels
+            </span>
+            <span className="hero__tag-item">
+              <Flame className="w-4 h-4 text-amber-400 inline-block mr-1.5" /> High-Retention Hooks
+            </span>
+          </motion.div>
+
+          <div className="hero__scroll">
+            <span>Scroll to Explore</span>
+            <div className="hero__scroll-line"><span></span></div>
+          </div>
+        </motion.div>
+
+        {/* Right Column: Idea Spark Visual & Windows XP Floating Folders */}
+        <div className="hero__visual">
+          {/* Master Frameless Floating Figure */}
+          <div className="hero-floating-stage" id="heroFloatingStage">
+            <motion.div
+              className="hero-figure-wrapper cursor-pointer"
+              id="heroFigureWrapper"
+              ref={figureRef}
+              role="button"
+              tabIndex={0}
+              aria-label="Shahd Essam — Wait... I have an idea. (Click for Magic Stars)"
+              onClick={triggerEpicSparkles}
+              onKeyDown={handleKeyDown}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <div className="hero-wood-swing" id="heroWoodSwing" ref={woodSwingRef}>
+                <div className="hero-figure-sheen" aria-hidden="true"></div>
+
+                <img
+                  src="/image/shahd_idea_nobg.png"
+                  alt="Shahd Essam — Wait... I have an idea."
+                  className="hero-floating-img"
+                  id="heroFloatingImg"
+                  loading="eager"
+                />
+
+                <div className="hero-figure-sparkles" aria-hidden="true">
+                  <span className="hero-spark hero-spark--1">✦</span>
+                  <span className="hero-spark hero-spark--2">⭐</span>
+                  <span className="hero-spark hero-spark--3">✧</span>
+                  <span className="hero-spark hero-spark--4">✨</span>
+                  <span className="hero-spark hero-spark--5">★</span>
+                  <span className="hero-spark hero-spark--6">💫</span>
+                </div>
+              </div>
+
+              <div className="hero-ground-shadow" aria-hidden="true"></div>
+            </motion.div>
+          </div>
+
+          {/* Windows XP Classic Style Floating Folders (Rendered AFTER figure so they stay on top) */}
+          <div className="hero-xp-folders" aria-hidden="false">
+            {/* Folder 1: Medical */}
+            <button
+              type="button"
+              className="xp-folder hero-sector-folder xp-folder--1 xp-folder--pink cursor-pointer"
+              title="01_Healthcare_Medical (5 Dossiers)"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenFolder('medical');
+              }}
+            >
+              <div className="xp-folder__icon-box">
+                <svg className="xp-folder__svg" viewBox="0 0 64 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M4 8C4 5.79 5.79 4 8 4H24L30 10H56C58.21 10 60 11.79 60 14V44C60 46.21 58.21 48 56 48H8C5.79 48 4 46.21 4 44V8Z"
+                    fill="url(#xpBack1)"
+                    stroke="#B38006"
+                    strokeWidth="1.2"
+                  />
+                  <rect x="10" y="8" width="44" height="20" rx="2" fill="#FFFFFF" opacity="0.95" />
+                  <line x1="14" y1="12" x2="32" y2="12" stroke="#FDA4AF" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="14" y1="16" x2="44" y2="16" stroke="#CBD5E1" strokeWidth="1.5" strokeLinecap="round" />
+                  <path
+                    d="M2 18L6 45.5C6.3 47.5 8 49 10 49H54C56 49 57.7 47.5 58 45.5L62 18C62.3 16 60.5 14 58.5 14H5.5C3.5 14 1.7 16 2 18Z"
+                    fill="url(#xpFront1)"
+                    stroke="#B38006"
+                    strokeWidth="1.2"
+                  />
+                  <path d="M6 16.5H58" stroke="#FFF7C2" strokeWidth="1.5" strokeLinecap="round" opacity="0.9" />
+                  <defs>
+                    <linearGradient id="xpBack1" x1="4" y1="4" x2="60" y2="48" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#FFDF5D" />
+                      <stop offset="0.5" stopColor="#F5B800" />
+                      <stop offset="1" stopColor="#D99B00" />
+                    </linearGradient>
+                    <linearGradient id="xpFront1" x1="2" y1="14" x2="62" y2="49" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#FFF18E" />
+                      <stop offset="0.3" stopColor="#FFD738" />
+                      <stop offset="0.8" stopColor="#F2A900" />
+                      <stop offset="1" stopColor="#C78200" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <span className="xp-folder__mini-pill xp-folder__mini-pill--pink">
+                  <i className="fa-solid fa-heart-pulse"></i>
+                </span>
+              </div>
+              <span className="xp-folder__text">01_Medical_Sector.dir</span>
+            </button>
+
+            {/* Folder 2: Commercial */}
+            <button
+              type="button"
+              className="xp-folder hero-sector-folder xp-folder--2 xp-folder--cyan cursor-pointer"
+              title="02_Commercial_Retail (3 Dossiers)"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenFolder('commercial');
+              }}
+            >
+              <div className="xp-folder__icon-box">
+                <svg className="xp-folder__svg" viewBox="0 0 64 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M4 8C4 5.79 5.79 4 8 4H24L30 10H56C58.21 10 60 11.79 60 14V44C60 46.21 58.21 48 56 48H8C5.79 48 4 46.21 4 44V8Z"
+                    fill="url(#xpBack2)"
+                    stroke="#B38006"
+                    strokeWidth="1.2"
+                  />
+                  <rect x="10" y="8" width="44" height="20" rx="2" fill="#FFFFFF" opacity="0.95" />
+                  <line x1="14" y1="12" x2="30" y2="12" stroke="#7DD3FC" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="14" y1="16" x2="42" y2="16" stroke="#CBD5E1" strokeWidth="1.5" strokeLinecap="round" />
+                  <path
+                    d="M2 18L6 45.5C6.3 47.5 8 49 10 49H54C56 49 57.7 47.5 58 45.5L62 18C62.3 16 60.5 14 58.5 14H5.5C3.5 14 1.7 16 2 18Z"
+                    fill="url(#xpFront2)"
+                    stroke="#B38006"
+                    strokeWidth="1.2"
+                  />
+                  <path d="M6 16.5H58" stroke="#FFF7C2" strokeWidth="1.5" strokeLinecap="round" opacity="0.9" />
+                  <defs>
+                    <linearGradient id="xpBack2" x1="4" y1="4" x2="60" y2="48" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#FFDF5D" />
+                      <stop offset="0.5" stopColor="#F5B800" />
+                      <stop offset="1" stopColor="#D99B00" />
+                    </linearGradient>
+                    <linearGradient id="xpFront2" x1="2" y1="14" x2="62" y2="49" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#FFF18E" />
+                      <stop offset="0.3" stopColor="#FFD738" />
+                      <stop offset="0.8" stopColor="#F2A900" />
+                      <stop offset="1" stopColor="#C78200" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <span className="xp-folder__mini-pill xp-folder__mini-pill--cyan">
+                  <i className="fa-solid fa-cart-shopping"></i>
+                </span>
+              </div>
+              <span className="xp-folder__text">02_Commercial_Retail.dir</span>
+            </button>
+
+            {/* Folder 3: Food */}
+            <button
+              type="button"
+              className="xp-folder hero-sector-folder xp-folder--3 xp-folder--gold cursor-pointer"
+              title="03_Food_Dining (4 Dossiers)"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenFolder('food');
+              }}
+            >
+              <div className="xp-folder__icon-box">
+                <svg className="xp-folder__svg" viewBox="0 0 64 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M4 8C4 5.79 5.79 4 8 4H24L30 10H56C58.21 10 60 11.79 60 14V44C60 46.21 58.21 48 56 48H8C5.79 48 4 46.21 4 44V8Z"
+                    fill="url(#xpBack3)"
+                    stroke="#B38006"
+                    strokeWidth="1.2"
+                  />
+                  <rect x="10" y="8" width="44" height="20" rx="2" fill="#FFFFFF" opacity="0.95" />
+                  <line x1="14" y1="12" x2="28" y2="12" stroke="#FDE68A" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="14" y1="16" x2="40" y2="16" stroke="#CBD5E1" strokeWidth="1.5" strokeLinecap="round" />
+                  <path
+                    d="M2 18L6 45.5C6.3 47.5 8 49 10 49H54C56 49 57.7 47.5 58 45.5L62 18C62.3 16 60.5 14 58.5 14H5.5C3.5 14 1.7 16 2 18Z"
+                    fill="url(#xpFront3)"
+                    stroke="#B38006"
+                    strokeWidth="1.2"
+                  />
+                  <path d="M6 16.5H58" stroke="#FFF7C2" strokeWidth="1.5" strokeLinecap="round" opacity="0.9" />
+                  <defs>
+                    <linearGradient id="xpBack3" x1="4" y1="4" x2="60" y2="48" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#FFDF5D" />
+                      <stop offset="0.5" stopColor="#F5B800" />
+                      <stop offset="1" stopColor="#D99B00" />
+                    </linearGradient>
+                    <linearGradient id="xpFront3" x1="2" y1="14" x2="62" y2="49" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#FFF18E" />
+                      <stop offset="0.3" stopColor="#FFD738" />
+                      <stop offset="0.8" stopColor="#F2A900" />
+                      <stop offset="1" stopColor="#C78200" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <span className="xp-folder__mini-pill xp-folder__mini-pill--gold">
+                  <i className="fa-solid fa-utensils"></i>
+                </span>
+              </div>
+              <span className="xp-folder__text">03_Food_Dining.dir</span>
+            </button>
+
+            {/* Folder 4: Real Estate */}
+            <button
+              type="button"
+              className="xp-folder hero-sector-folder xp-folder--4 xp-folder--purple cursor-pointer"
+              title="04_Brand_Strategy_RealEstate (Dossier)"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenFolder('realestate');
+              }}
+            >
+              <div className="xp-folder__icon-box">
+                <svg className="xp-folder__svg" viewBox="0 0 64 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M4 8C4 5.79 5.79 4 8 4H24L30 10H56C58.21 10 60 11.79 60 14V44C60 46.21 58.21 48 56 48H8C5.79 48 4 46.21 4 44V8Z"
+                    fill="url(#xpBack4)"
+                    stroke="#B38006"
+                    strokeWidth="1.2"
+                  />
+                  <rect x="10" y="8" width="44" height="20" rx="2" fill="#FFFFFF" opacity="0.95" />
+                  <line x1="14" y1="12" x2="34" y2="12" stroke="#C4B5FD" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="14" y1="16" x2="42" y2="16" stroke="#CBD5E1" strokeWidth="1.5" strokeLinecap="round" />
+                  <path
+                    d="M2 18L6 45.5C6.3 47.5 8 49 10 49H54C56 49 57.7 47.5 58 45.5L62 18C62.3 16 60.5 14 58.5 14H5.5C3.5 14 1.7 16 2 18Z"
+                    fill="url(#xpFront4)"
+                    stroke="#B38006"
+                    strokeWidth="1.2"
+                  />
+                  <path d="M6 16.5H58" stroke="#FFF7C2" strokeWidth="1.5" strokeLinecap="round" opacity="0.9" />
+                  <defs>
+                    <linearGradient id="xpBack4" x1="4" y1="4" x2="60" y2="48" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#FFDF5D" />
+                      <stop offset="0.5" stopColor="#F5B800" />
+                      <stop offset="1" stopColor="#D99B00" />
+                    </linearGradient>
+                    <linearGradient id="xpFront4" x1="2" y1="14" x2="62" y2="49" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#FFF18E" />
+                      <stop offset="0.3" stopColor="#FFD738" />
+                      <stop offset="0.8" stopColor="#F2A900" />
+                      <stop offset="1" stopColor="#C78200" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <span className="xp-folder__mini-pill xp-folder__mini-pill--purple">
+                  <i className="fa-solid fa-chess-knight"></i>
+                </span>
+              </div>
+              <span className="xp-folder__text">04_Brand_Strategy.dir</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
