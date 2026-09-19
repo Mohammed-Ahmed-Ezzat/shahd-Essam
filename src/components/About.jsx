@@ -30,7 +30,7 @@ export default function About() {
             <div className="about__pillar-card hover:scale-[1.02] transition-transform duration-300">
               <div className="about__pillar-frame">
                 <img
-                  src="/image/shahd_strategy.jpg"
+                  src={`${import.meta.env.BASE_URL}image/shahd_strategy.jpg`}
                   alt="Shahd Essam — Strategy Creates Clarity"
                   className="about__pillar-img"
                   loading="eager"
@@ -97,7 +97,7 @@ export default function About() {
             <div className="about__pillar-card hover:scale-[1.02] transition-transform duration-300">
               <div className="about__pillar-frame">
                 <img
-                  src="/image/shahd_content.jpg"
+                  src={`${import.meta.env.BASE_URL}image/shahd_content.jpg`}
                   alt="Shahd Essam — Content Connects People"
                   className="about__pillar-img"
                   loading="eager"

@@ -142,7 +142,7 @@ export default function Hero({ onOpenFolder }) {
                 <div className="hero-figure-sheen" aria-hidden="true"></div>
 
                 <img
-                  src="/image/shahd_idea_nobg.png"
+                  src={`${import.meta.env.BASE_URL}image/shahd_idea_nobg.png`}
                   alt="Shahd Essam — Wait... I have an idea."
                   className="hero-floating-img"
                   id="heroFloatingImg"

@@ -1202,7 +1202,9 @@ export default function WorkModal({ isOpen, onClose, deliverable, client, catego
                 </div>
 
                 {dbData.images.map((imgSrc, sIdx) => {
-                  const resolvedSrc = imgSrc.startsWith('http') || imgSrc.startsWith('/') ? imgSrc : `/${imgSrc}`;
+                  const resolvedSrc = imgSrc.startsWith('http')
+                    ? imgSrc
+                    : `${import.meta.env.BASE_URL}${imgSrc.replace(/^\//, '')}`;
                   return (
                     <div
                       key={sIdx}
