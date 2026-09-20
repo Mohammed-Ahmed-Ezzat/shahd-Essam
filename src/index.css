@@ -4814,6 +4814,11 @@ body.modal-open .hero__badge-dot {
   .xp-folder--3 { left: 0px; bottom: 8px; }
   .xp-folder--4 { right: 0px; bottom: 8px; }
 
+  /* Mobile: Show only 3 service clouds */
+  .services__grid .service-card:nth-child(n+4) {
+    display: none !important;
+  }
+
   /* Navbar Mobile Drawer Activation for Tablet & Mobile */
   .nav-toggle {
     display: flex;
