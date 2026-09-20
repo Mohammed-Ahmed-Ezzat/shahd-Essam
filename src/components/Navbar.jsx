@@ -31,8 +31,80 @@ export default function Navbar({ isLoaded, theme = 'light', onToggleTheme }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Sync body class with mobile menu state
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('nav-open');
+    } else {
+      document.body.classList.remove('nav-open');
+    }
+    return () => {
+      document.body.classList.remove('nav-open');
+    };
+  }, [isOpen]);
+
+  // Close on Escape or Window Resize to desktop
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+    const handleResize = () => {
+      if (window.innerWidth > 992 && isOpen) {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isOpen]);
+
   const toggleMenu = () => setIsOpen((prev) => !prev);
-  const closeMenu = () => setIsOpen(false);
+  const closeMenu = () => {
+    setIsOpen(false);
+    document.body.classList.remove('nav-open');
+  };
+
+  const handleNavClick = (e, targetId) => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    // 1. Immediately close the mobile drawer and unlock body
+    closeMenu();
+    setActiveSection(targetId);
+
+    // 2. Smoothly scroll to the target section with fixed navbar offset
+    requestAnimationFrame(() => {
+      const el = document.getElementById(targetId);
+      if (el) {
+        const navOffset = window.innerWidth <= 768 ? 64 : 76;
+        if (window.__lenis) {
+          window.__lenis.scrollTo(el, {
+            offset: -navOffset,
+            duration: 1.1,
+          });
+        } else {
+          const top = el.getBoundingClientRect().top + window.pageYOffset - navOffset;
+          window.scrollTo({
+            top,
+            behavior: 'smooth',
+          });
+        }
+      }
+    });
+
+    // 3. Update URL hash cleanly
+    if (window.history.pushState) {
+      window.history.pushState(null, '', `#${targetId}`);
+    } else {
+      window.location.hash = `#${targetId}`;
+    }
+  };
 
   return (
     <>
@@ -41,7 +113,7 @@ export default function Navbar({ isLoaded, theme = 'light', onToggleTheme }) {
         id="navbar"
       >
         <div className="container nav-container">
-          <a href="#home" className="nav-logo group" onClick={closeMenu}>
+          <a href="#home" className="nav-logo group" onClick={(e) => handleNavClick(e, 'home')}>
             <span className="nav-logo__mark transition-transform group-hover:scale-105 inline-block">shahd</span>
             <span className="nav-logo__dot">.ic</span>
           </a>
@@ -52,7 +124,7 @@ export default function Navbar({ isLoaded, theme = 'light', onToggleTheme }) {
                 <a
                   href={`#${sec}`}
                   className={`nav-link capitalize ${activeSection === sec ? 'active' : ''}`}
-                  onClick={closeMenu}
+                  onClick={(e) => handleNavClick(e, sec)}
                 >
                   {sec === 'home' ? 'Home' : sec === 'about' ? 'About' : sec === 'services' ? 'Services' : sec === 'process' ? 'Process' : 'Contact'}
                 </a>
@@ -65,6 +137,7 @@ export default function Navbar({ isLoaded, theme = 'light', onToggleTheme }) {
                 type="button"
                 onClick={() => {
                   onToggleTheme();
+                  closeMenu();
                 }}
                 className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-white font-semibold text-xs transition-all cursor-pointer"
               >
