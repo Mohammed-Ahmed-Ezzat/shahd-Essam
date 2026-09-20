@@ -109,7 +109,7 @@ export default function Services() {
                 aria-hidden="true"
               >
                 <path
-                  className="cloud-path"
+                  className="service-card__cloud-path"
                   d="M 140,50 C 155,18 245,18 260,50 C 295,45 345,60 345,95 C 375,110 395,135 385,160 C 385,195 360,235 325,235 C 285,242 240,242 200,238 C 160,242 115,242 75,235 C 40,235 15,195 15,160 C 5,135 25,110 55,95 C 55,60 105,45 140,50 Z"
                 />
               </svg>

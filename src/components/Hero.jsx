@@ -128,7 +128,7 @@ export default function Hero({ onOpenFolder }) {
               onClick={() => onOpenFolder('medical')}
               className="hero-explore-btn group"
             >
-              <Folder className="w-4 h-4 text-sky-400 group-hover:scale-110 transition-transform shrink-0" />
+              <Folder className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform shrink-0" />
               <span className="hero-explore-btn__text">Explore My Work</span>
               <span className="hero-explore-btn__badge">
                 4 Sectors
@@ -203,6 +203,19 @@ export default function Hero({ onOpenFolder }) {
             </motion.div>
           </div>
 
+
+          {/* Interactive Guide Badge above folders */}
+          <motion.div
+            className="hero-folders-guide-badge"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
+          >
+            <span className="w-2 h-2 rounded-full bg-sky-400 animate-ping" />
+            <span className="font-bold text-sky-200">
+              📁 Click any folder to explore my work
+            </span>
+          </motion.div>
 
           {/* Windows XP Classic Style Floating Folders (Rendered AFTER figure so they stay on top) */}
           <div className="hero-xp-folders" aria-hidden="false">

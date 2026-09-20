@@ -1435,6 +1435,35 @@ span {
   animation-delay: -0.9s;
 }
 
+/* Interactive Guide Badge above Folders */
+.hero-folders-guide-badge {
+  position: absolute;
+  top: -38px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  background: rgba(3, 10, 24, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.25);
+  font-size: 0.78rem;
+  letter-spacing: 0.3px;
+  z-index: 50;
+  pointer-events: auto;
+  white-space: nowrap;
+  animation: heroGuideFloat 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes heroGuideFloat {
+  0% { transform: translateX(-50%) translateY(0); }
+  100% { transform: translateX(-50%) translateY(-5px); }
+}
+
 /* Hero Explore My Work Button (Crisp contrast in light & dark modes) */
 .hero-explore-btn {
   position: relative;
@@ -4745,10 +4774,21 @@ body.modal-open .hero__badge-dot {
 
   .hero__visual {
     max-width: 420px;
-    margin: 28px auto 16px;
+    margin: 36px auto 16px;
     min-height: auto;
-    padding: 24px 16px 54px;
+    padding: 34px 16px 54px;
     overflow: visible;
+  }
+
+  .hero-folders-guide-badge {
+    top: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.65rem;
+    padding: 3px 10px;
+    gap: 5px;
+    z-index: 55;
+    white-space: nowrap;
   }
 
   .xp-folder {
@@ -4769,8 +4809,8 @@ body.modal-open .hero__badge-dot {
     white-space: nowrap;
   }
 
-  .xp-folder--1 { left: 0px; top: 0px; }
-  .xp-folder--2 { right: 0px; top: 0px; }
+  .xp-folder--1 { left: 0px; top: 16px; }
+  .xp-folder--2 { right: 0px; top: 16px; }
   .xp-folder--3 { left: 0px; bottom: 8px; }
   .xp-folder--4 { right: 0px; bottom: 8px; }
 
@@ -4990,8 +5030,15 @@ body.modal-open .hero__badge-dot {
     white-space: nowrap;
   }
 
-  .xp-folder--1 { left: 0px; top: 0px; }
-  .xp-folder--2 { right: 0px; top: 0px; }
+  .hero-folders-guide-badge {
+    top: -22px;
+    font-size: 0.60rem;
+    padding: 3px 8px;
+    gap: 4px;
+  }
+
+  .xp-folder--1 { left: 0px; top: 16px; }
+  .xp-folder--2 { right: 0px; top: 16px; }
   .xp-folder--3 { left: 0px; bottom: 8px; }
   .xp-folder--4 { right: 0px; bottom: 8px; }
 
