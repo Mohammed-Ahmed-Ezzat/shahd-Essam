@@ -603,6 +603,26 @@ export default function FinderModal({ isOpen, onClose, categoryKey = 'medical', 
                 </div>
               </div>
 
+              {/* Google Drive Direct Link */}
+              <a
+                href="https://drive.google.com/drive/folders/1gEmezdHKR8cM8uEHMGTAa1pljyG1epIX"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-sky-500/15 via-emerald-500/15 to-amber-500/15 hover:from-sky-500/25 hover:to-emerald-500/25 border border-sky-400/30 hover:border-emerald-400/60 rounded-lg text-xs font-semibold text-white transition-all shadow-sm group shrink-0 mr-1 sm:mr-2"
+                title="Open All Works in Google Drive"
+              >
+                <svg className="w-4 h-3.5 shrink-0" viewBox="0 0 87.3 78" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+                  <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44c-.8 1.4-1.2 2.95-1.2 4.5h27.5z" fill="#00ac47"/>
+                  <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/>
+                  <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
+                  <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
+                  <path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
+                </svg>
+                <span className="text-[11px] font-bold text-sky-200 group-hover:text-white hidden xs:inline sm:inline">All Works</span>
+                <span className="text-[10px] text-sky-300 group-hover:translate-x-0.5 transition-transform">↗</span>
+              </a>
+
               {/* View Switchers & Close */}
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <div className="hidden sm:flex items-center bg-slate-900 border border-white/10 rounded-md p-0.5">

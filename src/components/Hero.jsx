@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Sparkles, TrendingUp, Flame, Wand2 } from 'lucide-react';
+import { Sparkles, TrendingUp, Flame, Wand2, ExternalLink, Folder } from 'lucide-react';
 
 export default function Hero({ onOpenFolder }) {
   const woodSwingRef = useRef(null);
@@ -116,6 +116,46 @@ export default function Hero({ onOpenFolder }) {
             </span>
           </motion.div>
 
+          {/* Action CTAs: Direct Portfolio Triggers */}
+          <motion.div
+            className="hero__cta-actions flex flex-col xs:flex-row sm:flex-row items-stretch sm:items-center justify-center sm:justify-start gap-3 my-5 sm:my-6 w-full sm:w-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 0.8 }}
+          >
+            <button
+              type="button"
+              onClick={() => onOpenFolder('medical')}
+              className="group relative inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 shadow-lg shadow-sky-500/30 hover:shadow-sky-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer overflow-hidden border border-sky-300/30"
+            >
+              <Folder className="w-4 h-4 text-sky-100 group-hover:scale-110 transition-transform shrink-0" />
+              <span>Explore My Work</span>
+              <span className="text-[11px] bg-white/20 px-2 py-0.5 rounded-full font-mono text-sky-100 shrink-0">
+                4 Sectors
+              </span>
+            </button>
+
+            <a
+              href="https://drive.google.com/drive/folders/1gEmezdHKR8cM8uEHMGTAa1pljyG1epIX"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl font-bold text-sm text-slate-200 bg-slate-900/80 hover:bg-slate-800/90 border border-sky-400/30 hover:border-emerald-400/60 shadow-md hover:shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+              title="Open all works in Google Drive"
+            >
+              {/* Google Drive SVG */}
+              <svg className="w-4 h-4 shrink-0" viewBox="0 0 87.3 78" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+                <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44c-.8 1.4-1.2 2.95-1.2 4.5h27.5z" fill="#00ac47"/>
+                <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/>
+                <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
+                <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
+                <path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
+              </svg>
+              <span>All Works on Drive</span>
+              <ExternalLink className="w-3.5 h-3.5 text-sky-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform shrink-0" />
+            </a>
+          </motion.div>
+
           <div className="hero__scroll">
             <span>Scroll to Explore</span>
             <div className="hero__scroll-line"><span></span></div>
@@ -162,6 +202,19 @@ export default function Hero({ onOpenFolder }) {
               <div className="hero-ground-shadow" aria-hidden="true"></div>
             </motion.div>
           </div>
+
+          {/* Interactive Guide Badge above folders */}
+          <motion.div
+            className="hero-folders-guide-badge"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
+          >
+            <span className="w-2 h-2 rounded-full bg-sky-400 animate-ping" />
+            <span className="font-bold text-sky-200">
+              📁 Click any folder to explore my work
+            </span>
+          </motion.div>
 
           {/* Windows XP Classic Style Floating Folders (Rendered AFTER figure so they stay on top) */}
           <div className="hero-xp-folders" aria-hidden="false">
@@ -211,7 +264,10 @@ export default function Hero({ onOpenFolder }) {
                   <i className="fa-solid fa-heart-pulse"></i>
                 </span>
               </div>
-              <span className="xp-folder__text">01_Medical_Sector.dir</span>
+              <span className="xp-folder__text">
+                <span className="hidden sm:inline">01_Medical (5 Projects) ↗</span>
+                <span className="sm:hidden">Medical (5) ↗</span>
+              </span>
             </button>
 
             {/* Folder 2: Commercial */}
@@ -260,7 +316,10 @@ export default function Hero({ onOpenFolder }) {
                   <i className="fa-solid fa-cart-shopping"></i>
                 </span>
               </div>
-              <span className="xp-folder__text">02_Commercial_Retail.dir</span>
+              <span className="xp-folder__text">
+                <span className="hidden sm:inline">02_Commercial (3 Projects) ↗</span>
+                <span className="sm:hidden">Commercial (3) ↗</span>
+              </span>
             </button>
 
             {/* Folder 3: Food */}
@@ -309,7 +368,10 @@ export default function Hero({ onOpenFolder }) {
                   <i className="fa-solid fa-utensils"></i>
                 </span>
               </div>
-              <span className="xp-folder__text">03_Food_Dining.dir</span>
+              <span className="xp-folder__text">
+                <span className="hidden sm:inline">03_Food & Dining (4 Projects) ↗</span>
+                <span className="sm:hidden">Food (4) ↗</span>
+              </span>
             </button>
 
             {/* Folder 4: Real Estate */}
@@ -358,7 +420,10 @@ export default function Hero({ onOpenFolder }) {
                   <i className="fa-solid fa-chess-knight"></i>
                 </span>
               </div>
-              <span className="xp-folder__text">04_Brand_Strategy.dir</span>
+              <span className="xp-folder__text">
+                <span className="hidden sm:inline">04_Brand Strategy (Case Study) ↗</span>
+                <span className="sm:hidden">Strategy (1) ↗</span>
+              </span>
             </button>
           </div>
         </div>

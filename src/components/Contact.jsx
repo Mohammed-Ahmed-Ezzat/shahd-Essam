@@ -1,8 +1,26 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MessageCircle, ArrowUpRight } from 'lucide-react';
+import confetti from 'canvas-confetti';
+import { Mail, Phone, MessageCircle, ArrowUpRight, Sparkles } from 'lucide-react';
 
 export default function Contact() {
+  const triggerMagic = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (rect.left + rect.width / 2) / window.innerWidth;
+    const y = (rect.top + rect.height / 2) / window.innerHeight;
+
+    confetti({
+      particleCount: 45,
+      spread: 70,
+      origin: { x, y },
+      colors: ['#38bdf8', '#a855f7', '#34d399', '#f472b6', '#fbbf24'],
+      shapes: ['star', 'circle'],
+      ticks: 180,
+      gravity: 0.8,
+      scalar: 1.1,
+    });
+  };
+
   return (
     <section className="section contact" id="contact">
       <div className="container">
@@ -14,12 +32,64 @@ export default function Contact() {
           transition={{ duration: 0.8 }}
         >
           <span className="section-tag">04 — Contact</span>
-          <h2 className="section-title">
-            Let's create something <span className="gradient-text">unforgettable.</span>
-          </h2>
-          <p className="contact__text">
-            Have a project in mind? Let's talk. I work with brands and healthcare leaders who want to stand out — not blend in.
-          </p>
+          <h2 className="sr-only">Need some creative magic? Let's create the magic</h2>
+
+          {/* Creative Frameless Meme Presentation */}
+          <div className="contact__creative-meme relative my-8 sm:my-10 mx-auto max-w-2xl px-2">
+            {/* Ambient Celestial Glow */}
+            <div className="pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-r from-sky-500/10 via-purple-500/15 to-emerald-500/10 blur-3xl opacity-70" />
+
+            <div className="relative flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-6">
+              {/* First Image - The Question */}
+              <motion.div
+                className="relative w-full max-w-[340px] sm:max-w-none sm:w-1/2 cursor-pointer select-none"
+                initial={{ opacity: 0, x: -25, rotate: -2 }}
+                whileInView={{ opacity: 1, x: 0, rotate: -2 }}
+                viewport={{ once: true }}
+                whileHover={{ scale: 1.05, rotate: 0, y: -6, zIndex: 20 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                <img
+                  src="/image/contact_meme_1.png"
+                  alt="Need some creative magic?"
+                  className="w-full h-auto rounded-2xl shadow-[0_15px_35px_rgba(0,0,0,0.6),0_0_25px_rgba(56,189,248,0.15)] transition-all duration-300 hover:shadow-[0_20px_45px_rgba(0,0,0,0.7),0_0_35px_rgba(56,189,248,0.35)] block"
+                  loading="lazy"
+                />
+              </motion.div>
+
+              {/* Connecting Magical Element */}
+              <div className="flex sm:flex-col items-center justify-center z-10 text-sky-400/90 -my-2 sm:my-0">
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1], rotate: [0, 15, -15, 0] }}
+                  transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                  className="w-9 h-9 rounded-full bg-sky-950/80 border border-sky-400/30 flex items-center justify-center shadow-lg shadow-sky-500/20"
+                >
+                  <Sparkles className="w-4 h-4 text-sky-300" />
+                </motion.div>
+              </div>
+
+              {/* Second Image - The Magic */}
+              <motion.div
+                className="relative w-full max-w-[340px] sm:max-w-none sm:w-1/2 cursor-pointer select-none"
+                initial={{ opacity: 0, x: 25, rotate: 2 }}
+                whileInView={{ opacity: 1, x: 0, rotate: 2 }}
+                viewport={{ once: true }}
+                whileHover={{ scale: 1.05, rotate: 0, y: -6, zIndex: 20 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={triggerMagic}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                title="Click for magic! ✨"
+              >
+                <img
+                  src="/image/contact_meme_2.png"
+                  alt="Let's create the magic"
+                  className="w-full h-auto rounded-2xl shadow-[0_15px_35px_rgba(0,0,0,0.6),0_0_25px_rgba(168,85,247,0.15)] transition-all duration-300 hover:shadow-[0_20px_45px_rgba(0,0,0,0.7),0_0_35px_rgba(168,85,247,0.35)] block"
+                  loading="lazy"
+                />
+              </motion.div>
+            </div>
+          </div>
 
           <div className="contact__info flex flex-wrap justify-center gap-4">
             <motion.a
