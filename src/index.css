@@ -1435,42 +1435,64 @@ span {
   animation-delay: -0.9s;
 }
 
-/* Interactive Guide Badge above Folders */
-.hero-folders-guide-badge {
-  position: absolute;
-  top: -34px;
-  left: 50%;
-  transform: translateX(-50%);
+/* Hero Explore My Work Button (Crisp contrast in light & dark modes) */
+.hero-explore-btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 16px;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 24px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  background: linear-gradient(135deg, #091a36 0%, #0f274e 100%);
+  color: #ffffff !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.55);
+  box-shadow: 0 6px 20px rgba(9, 26, 54, 0.45), 0 0 16px rgba(56, 189, 248, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-explore-btn:hover {
+  background: linear-gradient(135deg, #0d254c 0%, #16386d 100%);
+  border-color: #38bdf8;
+  box-shadow: 0 8px 28px rgba(9, 26, 54, 0.6), 0 0 24px rgba(56, 189, 248, 0.45);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.hero-explore-btn:active {
+  transform: scale(0.98);
+}
+
+.hero-explore-btn__text {
+  color: #ffffff !important;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.hero-explore-btn__badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 9px;
   border-radius: 9999px;
-  background: rgba(3, 10, 24, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(14, 165, 233, 0.25);
+  color: #38bdf8 !important;
   border: 1px solid rgba(56, 189, 248, 0.45);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.25);
-  font-size: 0.78rem;
-  letter-spacing: 0.3px;
-  z-index: 50;
-  pointer-events: auto;
-  white-space: nowrap;
-  animation: heroGuideFloat 3.5s ease-in-out infinite alternate;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-@keyframes heroGuideFloat {
-  0% { transform: translateX(-50%) translateY(0); }
-  100% { transform: translateX(-50%) translateY(-5px); }
+[data-theme="dark"] .hero-explore-btn {
+  background: linear-gradient(135deg, #050d1a 0%, #0b1c36 100%);
+  border-color: rgba(56, 189, 248, 0.65);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.35);
 }
 
-@media (max-width: 768px) {
-  .hero-folders-guide-badge {
-    top: -18px;
-    font-size: 0.68rem;
-    padding: 4px 10px;
-    gap: 5px;
-  }
+[data-theme="dark"] .hero-explore-btn:hover {
+  background: linear-gradient(135deg, #0a172e 0%, #12294e 100%);
+  border-color: #7dd3fc;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8), 0 0 28px rgba(56, 189, 248, 0.55);
 }
 
 /* Animations */
@@ -4729,20 +4751,28 @@ body.modal-open .hero__badge-dot {
     overflow: visible;
   }
 
+  .xp-folder {
+    max-width: 105px !important;
+  }
+
   .xp-folder__icon-box {
-    width: 48px;
-    height: 40px;
+    width: 44px;
+    height: 38px;
   }
 
   .xp-folder__text {
-    font-size: 0.68rem;
-    padding: 2px 8px;
+    font-size: 0.62rem;
+    padding: 2px 6px;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .xp-folder--1 { left: 4px; top: 0px; }
-  .xp-folder--2 { right: 4px; top: 0px; }
-  .xp-folder--3 { left: 4px; bottom: 8px; }
-  .xp-folder--4 { right: 4px; bottom: 8px; }
+  .xp-folder--1 { left: 0px; top: 0px; }
+  .xp-folder--2 { right: 0px; top: 0px; }
+  .xp-folder--3 { left: 0px; bottom: 8px; }
+  .xp-folder--4 { right: 0px; bottom: 8px; }
 
   /* Navbar Mobile Drawer Activation for Tablet & Mobile */
   .nav-toggle {
@@ -4936,9 +4966,13 @@ body.modal-open .hero__badge-dot {
     height: 20px;
   }
 
+  .xp-folder {
+    max-width: 95px !important;
+  }
+
   .xp-folder__icon-box {
-    width: 42px;
-    height: 34px;
+    width: 40px;
+    height: 32px;
   }
 
   .xp-folder__mini-pill {
@@ -4948,25 +4982,37 @@ body.modal-open .hero__badge-dot {
   }
 
   .xp-folder__text {
-    font-size: 0.62rem;
-    padding: 2px 7px;
+    font-size: 0.58rem;
+    padding: 2px 5px;
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .xp-folder--1 { left: 6px; top: 0px; }
-  .xp-folder--2 { right: 6px; top: 0px; }
-  .xp-folder--3 { left: 6px; bottom: 8px; }
-  .xp-folder--4 { right: 6px; bottom: 8px; }
+  .xp-folder--1 { left: 0px; top: 0px; }
+  .xp-folder--2 { right: 0px; top: 0px; }
+  .xp-folder--3 { left: 0px; bottom: 8px; }
+  .xp-folder--4 { right: 0px; bottom: 8px; }
+
+  @keyframes xpFloat1 {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-6px); }
+  }
+
+  @keyframes xpFloat2 {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-6px); }
+  }
 
   @keyframes xpFloat3 {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    50% { transform: translate(-3px, 3px) rotate(1deg); }
-    100% { transform: translate(3px, 5px) rotate(-1deg); }
+    0% { transform: translateY(0); }
+    100% { transform: translateY(6px); }
   }
 
   @keyframes xpFloat4 {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    50% { transform: translate(3px, 3px) rotate(-1deg); }
-    100% { transform: translate(-3px, 5px) rotate(1deg); }
+    0% { transform: translateY(0); }
+    100% { transform: translateY(6px); }
   }
 
   /* Hero Section */

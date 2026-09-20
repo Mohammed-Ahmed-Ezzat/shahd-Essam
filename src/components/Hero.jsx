@@ -126,11 +126,11 @@ export default function Hero({ onOpenFolder }) {
             <button
               type="button"
               onClick={() => onOpenFolder('medical')}
-              className="group relative inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 shadow-lg shadow-sky-500/30 hover:shadow-sky-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer overflow-hidden border border-sky-300/30"
+              className="hero-explore-btn group"
             >
-              <Folder className="w-4 h-4 text-sky-100 group-hover:scale-110 transition-transform shrink-0" />
-              <span>Explore My Work</span>
-              <span className="text-[11px] bg-white/20 px-2 py-0.5 rounded-full font-mono text-sky-100 shrink-0">
+              <Folder className="w-4 h-4 text-sky-400 group-hover:scale-110 transition-transform shrink-0" />
+              <span className="hero-explore-btn__text">Explore My Work</span>
+              <span className="hero-explore-btn__badge">
                 4 Sectors
               </span>
             </button>
@@ -203,18 +203,6 @@ export default function Hero({ onOpenFolder }) {
             </motion.div>
           </div>
 
-          {/* Interactive Guide Badge above folders */}
-          <motion.div
-            className="hero-folders-guide-badge"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-          >
-            <span className="w-2 h-2 rounded-full bg-sky-400 animate-ping" />
-            <span className="font-bold text-sky-200">
-              📁 Click any folder to explore my work
-            </span>
-          </motion.div>
 
           {/* Windows XP Classic Style Floating Folders (Rendered AFTER figure so they stay on top) */}
           <div className="hero-xp-folders" aria-hidden="false">

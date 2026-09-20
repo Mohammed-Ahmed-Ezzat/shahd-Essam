@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 
 const servicesList = [
@@ -35,26 +35,6 @@ const servicesList = [
 ];
 
 export default function Services() {
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth <= 768;
-    }
-    return false;
-  });
-  const [showAllServicesMobile, setShowAllServicesMobile] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const displayedServices =
-    isMobile && !showAllServicesMobile ? servicesList.slice(0, 3) : servicesList;
-  const hasHiddenServices = isMobile && !showAllServicesMobile && servicesList.length > 3;
-
   return (
     <section className="section services" id="services">
       {/* Hidden SVG Master Gradients for Cloud Cards */}
@@ -73,7 +53,8 @@ export default function Services() {
           <linearGradient id="cloudBorderGrad" x1="20%" y1="0%" x2="80%" y2="100%">
             <stop offset="0%" stopColor="#FFFFFF" />
             <stop offset="40%" stopColor="rgba(186, 230, 253, 0.95)" />
-            <stop offset="100%" stopColor="rgba(125, 211, 252, 0.7)" />
+            <stop offset="60%" stopColor="rgba(125, 211, 252, 0.6)" />
+            <stop offset="100%" stopColor="rgba(224, 242, 254, 0.8)" />
           </linearGradient>
           <linearGradient id="cloudBorderGradAmber" x1="20%" y1="0%" x2="80%" y2="100%">
             <stop offset="0%" stopColor="#FFFFFF" />
@@ -100,33 +81,35 @@ export default function Services() {
       </svg>
 
       <div className="container">
-        <motion.div
-          className="section-head"
-          initial={{ opacity: 0, y: 25 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-        >
+        <div className="section-header text-center">
           <span className="section-tag">02 — Services</span>
           <h2 className="section-title">
-            What I <span className="gradient-text">do best.</span>
+            What I <span className="gradient-text">bring</span> to the table.
           </h2>
-        </motion.div>
+          <p className="section-desc">
+            End-to-end creative solutions built for brands that refuse to be boring.
+          </p>
+        </div>
 
         <div className="services__grid">
-          {displayedServices.map((srv, idx) => (
+          {servicesList.map((srv, idx) => (
             <motion.article
-              key={srv.title}
-              className="service-card cursor-pointer"
-              initial={{ opacity: 0, y: 25 }}
+              className="service-card"
+              key={idx}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: idx * 0.08 }}
-              whileHover={{ scale: 1.03, y: -6 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ delay: idx * 0.1, duration: 0.6 }}
             >
-              <svg className="service-card__cloud-svg" viewBox="0 0 400 260" preserveAspectRatio="none" aria-hidden="true">
+              {/* Modern Cloud Contour SVG */}
+              <svg
+                className="service-card__cloud-svg"
+                viewBox="0 0 400 280"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
                 <path
-                  className="service-card__cloud-path"
+                  className="cloud-path"
                   d="M 140,50 C 155,18 245,18 260,50 C 295,45 345,60 345,95 C 375,110 395,135 385,160 C 385,195 360,235 325,235 C 285,242 240,242 200,238 C 160,242 115,242 75,235 C 40,235 15,195 15,160 C 5,135 25,110 55,95 C 55,60 105,45 140,50 Z"
                 />
               </svg>
@@ -140,19 +123,6 @@ export default function Services() {
             </motion.article>
           ))}
         </div>
-
-        {hasHiddenServices && (
-          <div className="flex justify-center mt-6">
-            <button
-              type="button"
-              className="px-5 py-2.5 text-xs font-semibold rounded-full bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-400/30 transition-all flex items-center gap-2 cursor-pointer shadow-sm hover:shadow-sky-500/20"
-              onClick={() => setShowAllServicesMobile(true)}
-            >
-              <span>عرض باقي الخدمات (+{servicesList.length - 3})</span>
-              <i className="fa-solid fa-chevron-down text-[10px]"></i>
-            </button>
-          </div>
-        )}
       </div>
     </section>
   );
